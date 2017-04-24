@@ -1,0 +1,5 @@
+mkdir osticket
+git init osticket
+cd osticket/
+git remote add origin https://github.com/ahornalle5/osticket.git
+git pull origin master
