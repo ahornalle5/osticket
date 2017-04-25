@@ -1,0 +1,119 @@
+#
+# This is popup help messages for the Admin Panel -> Staff -> Add Staff Form
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+username:
+    title: Benutzername
+    content: >
+        Bitte wählen Sie einen eindeutigen <span class="doc-desc-title">
+        Benutzernamen</span> für den Mitarbeiter, der nur einmal in Ihrem <span
+        class="doc-desc-title">Helpdesk</span> vorhanden sein darf.
+
+email_address:
+    title: E-Mail-Adresse
+    content: >
+        Geben Sie die E-Mail-Adresse des Mitarbeiters ein, an die <span
+        class="doc-desc-title">Benachrichtigungen</span> des <span
+        class="doc-desc-title">Helpdesks</span> versendet werden sollen.
+        <br><br>
+        Mitarbeiter können sich entweder mit Ihrem Benutzernamen oder Ihrer E-Mail-Adresse am Mitarbeiter-Bereich anmelden.
+
+welcome_email:
+    title: Willkommens-E-Mail
+    content: >
+        Senden Sie dem neuen Mitarbeiter einen Konto-Zugangslink, über den er
+        sein eigenes Passwort festlegen kann. Wenn der Haken nicht gesetzt ist, müssen Sie das Passwort selbst
+        festlegen und anschließend dem neuen Mitarbeiter die Anmeldedaten mitteilen.
+
+account_password:
+    title: Kontopasswort
+    content: >
+        Als <span class="doc-desc-title"> Administrator</span> können Sie das
+        Passwort eines Mitarbeiters ändern.
+
+forced_password_change:
+    title: Passwort-Änderung erzwingen
+    content: >
+        Aktivieren Sie diese Option, wenn Sie möchten, dass der neue
+        Mitarbeiter bei der nächsten Anmeldung sein Passwort ändern muss.
+
+agents_signature:
+    title: Signatur des Mitarbeiter
+    content: >
+        Erstellen Sie eine Signatur für den Mitarbeiter, die beim Beantworten eines Ticket auswählen kann. Diese Signatur wird jedoch nur an ausgehende E-Mails angehängt.
+
+account_status:
+    title: Kontostatus
+    content: >
+        Wenn der Status des Mitarbeiters auf <span
+        class="doc-desc-opt">gesperrt</span> gesetzt ist, kann sich der
+        Mitarbeiter nicht am Helpdesk anmelden.
+
+assigned_group:
+    title: Zugewiesene Gruppe
+    content: >
+        Durch die <span class="doc-desc-title">Gruppenzugehörigkeit</span>
+        legen Sie die Berechtigungen des Mitarbeiters fest, die er innerhalb
+        des <span class="doc-desc-title">Helpdesks</span> erhält.
+    links:
+      - title: Gruppen verwalten
+        href: /scp/groups.php
+
+primary_department:
+    title: Hauptabteilung
+    content: >
+        Wählen Sie die <span class="doc-desc-title">Hauptabteilung</span>, der
+        dieser Mitarbeiter angehören soll und eine entsrechende <span class="doc-desc-title">Rolle</span>.
+
+    links:
+      - title: Abteilungen verwalten
+        href: /scp/departments.php
+
+primary_role:
+    title: Primäre Rolle
+    content: >
+        Wählen Sie die Primäre <span class="doc-desc-title">Rolle</span>, die der Mitarbeiter erhalten soll.
+
+primary_role_on_assign:
+    title: Primäre Rolle für Zuweisungen verwenden
+    content: >
+        Aktivieren Sie das als Sicherung für die <span class="doc-desc-title">Primäre
+        Rolle</span>, wenn diesem Mitarbeiter Tickets und Aufgaben außerhalb
+        seiner <span class="doc-desc-title">Hauptabteilung</span> und den
+        Abteilungen mit <span class="doc-desc-title">erweitertem Zugang</span> zugewiesen werden.
+        Andernfalls wird der Mitarbeiter nur Lese-Zugang haben.
+
+daylight_saving:
+    title: Sommerzeit berücksichtigen
+    content: >
+        Aktivieren Sie diese Funktion, wenn die Sommerzeit automatisch bei der
+        Zeitzone des Mitarbeiters berücksichtigt werden soll.
+
+limited_access:
+    title: Eingeschränkter Zugang
+    content: >
+        Wenn diese Option aktiviert ist, wird der Mitarbeiter nur zu Tickets Zugang haben, die ihm entweder direkt oder einem Team, dem er angehört, zugewiesen sind.
+
+directory_listing:
+    title: Im Mitarbeiterverzeichnis anzeigen
+    content: >
+        Aktivieren Sie diese Option, wenn dieser Mitarbeiter im <span
+        class="doc-desc-title">Mitarbeiterverzeichnis</span> aufgelistet werden soll.
+    links:
+      - title: Mitarbeiterverzeichnis anzeigen
+        href: /scp/directory.php
+
+vacation_mode:
+  title: Urlaubsmodus
+  content: 'Wenn Sie den Status des Mitarbeiters auf <span class="doc-desc-opt">Urlaubsmodus</span> ändern, erhält der Mitarbeiter weder <span class="doc-desc-title">Benachrichtigungen</span>, noch kann er für Ticketzuweisungen ausgewählt werden.'
