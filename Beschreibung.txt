@@ -1,0 +1,9 @@
+Behebt den Fehler mit dem SSL-Redirect.
+
+Wird eine SSL-Verbingung in der ost-config.php erzwungen, führte es zu einem Fehler beim Cron-Job.
+Es wurden dadurch keine Aktionen beim Cron-Job ausgeführt, wie z.B. keine Mails abgeholt...
+------------------------------
+Behebt den Fehler bei der Anzeige der Bearbeitungszeit im Ticket-Verlauf.
+------------------------------
+In der Zeiterfassung wurde das Erstellt-am-Datum nicht in der DB gespeichert. 
+------------------------------
