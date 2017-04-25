@@ -335,7 +335,9 @@ a.test  { background-image:url(../images/icons/open.gif) }
 
 a.Ticket { background:url(../images/icons/open_tickets.gif) }
 a.assignedTickets { background:url(../images/icons/assigned_tickets.gif) }
+a.activeTickets { background:url(../images/icons/active_tickets.gif) }
 a.overdueTickets { background:url(../images/icons/overdue_tickets.gif) }
+a.Tickets { background:url(../images/icons/overdue_tickets.gif) }
 a.answeredTickets { background:url(../images/icons/answered_tickets.gif) }
 a.closedTickets { background:url(../images/icons/closed_tickets.gif) }
 a.newTicket { background:url(../images/icons/new_ticket.gif) }

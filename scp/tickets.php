@@ -84,6 +84,7 @@ if($_POST && !$errors):
 		    $mTicket = $ticket;
 		    $mTicketRole = $role;
 		    $mTicketLock = $lock; //Ticket lock if any
+			$_REQUEST['keepTicket'] = $_REQUEST['keepticket']; // Da Case Sensitive aktivier ist
 			
 			if($_REQUEST['keepTicket'] || $_REQUEST['manKeepTicket']) {
 				if($_REQUEST['keepTicket'] && !($kTicket=Ticket::lookup($_REQUEST['keepTicket'])))

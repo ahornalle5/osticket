@@ -36,8 +36,8 @@ $sort_options = array(
 
 $queue_columns = array(
         'number' => array(
-            'width' => '7.4%',
-            'heading' => __('Number'),
+            'width' => '5%',
+            'heading' => __('Ticket'),
             ),
         'trafficlights' => array(// Anpassung Fälligkeitsampel
             'width' => '2%',
@@ -45,44 +45,53 @@ $queue_columns = array(
             'sort_col' => 'trafficlights',
             ),
         'date' => array(
-            'width' => '14.6%',
-            'heading' => __('Date Created'),
+            'width' => '1%',
+            'heading' => __('Created'),
             'sort_col' => 'created',
             ),
+        /*
         'time' => array(// Anpassung timesheet
-            'width' => '7%',
+            'width' => '1%',
             'heading' => __('Time'),
             'sort_col' => 'time',
             ),
+        // */
         'subject' => array(
-            'width' => '29.8%',
+            'width' => '47%',
             'heading' => __('Subject'),
             'sort_col' => 'cdata__subject',
             ),
         'name' => array(
-            'width' => '18.1%',
+            'width' => '11%',
             'heading' => __('From'),
             'sort_col' =>  'user__name',
             ),
         'status' => array(
-            'width' => '8.4%',
+            'width' => '15%',
             'heading' => __('Status'),
             'sort_col' => 'status_id',
             ),
         'priority' => array(
-            'width' => '8.4%',
+            'width' => '5%',
             'heading' => __('Priority'),
             'sort_col' => 'cdata__:priority__priority_urgency',
             ),
         'assignee' => array(
-            'width' => '16%',
+            'width' => '11%',
             'heading' => __('Agent'),
             ),
+        'top' => array(
+            'width' => '0%',
+            'heading' => __('Help Topic'),
+            'sort_col'  => 'topic__topic',
+            ),
+        /*
         'dept' => array(
             'width' => '16%',
             'heading' => __('Department'),
             'sort_col'  => 'dept__name',
             ),
+        // */
         );
 
 $use_subquery = true;
@@ -105,6 +114,19 @@ case 'overdue':
     $tickets->filter(array('isoverdue'=>1));
     $queue_sort_options = array('priority,due', 'due', 'priority,updated',
         'updated', 'answered', 'priority,created', 'number', 'hot');
+    break;
+case 'active':
+    $status='open';
+    $staffId=$thisstaff->getId();
+    $results_type=__('Active Tickets');
+    $tickets->filter(Q::any(array(
+        'staff_id'=>$thisstaff->getId(),
+        // Q::all(array('staff_id' => 0, 'team_id__gt' => 0, 'status_id__lt' => 7)), // hier geht es Los
+        Q::all(array('status_id' => 9)), // hier geht es Los
+        // Q::all(array('status_id__in' => array(0, 1, 2, 3, 4, 5, 6))) // und hier wird schon kaputt..
+    )));
+    $queue_sort_options = array('updated', 'priority,updated',
+        'priority,created', 'priority,due', 'due', 'answered', 'number', 'hot');
     break;
 case 'assigned':
     $status='open';
@@ -227,6 +249,12 @@ if($ds['deptId'] > 0)
     $tickets->filter(array('dept_id'=>$ds['deptId']));
 // <!-- department selector Ende -->
 
+// <!-- topic selector Anfang //*** EDIT HELP TOPIC Anfang*** -->
+if($ds['topId'] > 0)
+    $tickets->filter(array('topic_id'=>$ds['topId']));
+// <!-- topic selector Ende  //*** EDIT HELP TOPIC Ende*** -->
+
+
 // Impose visibility constraints
 // ------------------------------------------------------------
 if (!$view_all_tickets) {
@@ -275,7 +303,7 @@ if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[6], 0);
 }
 
 list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
@@ -406,9 +434,11 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
+// *** EDIT HELP TOPIC Anfang ***
 $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id',
 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address',
-'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
+'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'cdata__:priority__priority_id', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name', 'topic__topic', 'topic_id');
+// *** EDIT HELP TOPIC Ende ***
 
 // Add in annotations
 $tickets->annotate(array(
@@ -491,15 +521,19 @@ return false;">
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
+            <!-- Erste Spalte für Kästchen -->
             <?php
             if ($thisstaff->canManageTickets()) { ?>
-	        <th width="2%">&nbsp;</th>
+	        <th style="width: 2%">&nbsp;</th>
             <?php } ?>
 
             <?php
             // Swap some columns based on the queue.
             if ($showassigned ) {
-                unset($queue_columns['dept']);
+                // hier wird die Spalte Department/Help Topic in offene Tickets ausgeblendet
+                // unset($queue_columns['dept']);
+                unset($queue_columns['top']);
+
                 if (!strcasecmp($status,'closed'))
                     $queue_columns['assignee']['heading'] =  __('Closed By');
                 else
@@ -507,10 +541,10 @@ return false;">
             } else {
                 unset($queue_columns['assignee']);
             }
-            if ($search && !$status)
-                unset($queue_columns['priority']);
-            else
-                unset($queue_columns['status']);
+            //if ($search )&& !$status) ****edit Status****
+            //    unset($queue_columns['priority']); ****edit Status****
+            //else ****edit Status****
+            //    unset($queue_columns['status']); ****edit Status****
             if ($status == 'closed')// Anpassung Fälligkeitsampel
                 unset($queue_columns['trafficlights']);
 
@@ -518,12 +552,15 @@ return false;">
             unset($args['sort'], $args['dir'], $args['_pjax']);
             $qstr = Http::build_query($args);
             // Show headers
+            // Ausgabe der einzelnen Zeilen in der Tabelle
             foreach ($queue_columns as $k => $column) {
+                /*
                 if($k == 'time')
                     echo sprintf( '<th width="%s">%s</th>',
                         $column['width'],
                         $column['heading']);
                 else
+                // */
                     echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
                         class="%s">%s</a></th>',
                         $column['width'],
@@ -561,7 +598,9 @@ return false;">
                         $lc = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
                 }
                 else {
-                    $lc = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
+                    // *** EDIT HELP TOPIC ***
+                    //$lc = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
+                    $lc = Dept::getLocalById($T['topic_id'], 'name', $T['topic__topic']);
                 }
                 $tid=$T['number'];
                 $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
@@ -577,7 +616,7 @@ return false;">
                     if($ids && in_array($T['ticket_id'], $ids))
                         $sel=true;
                     ?>
-                <td align="center" class="nohover">
+                <td align="center" class="nohover" style="width: 2%">
                     <input class="ckb" type="checkbox" name="tids[]"
                         value="<?php echo $T['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
@@ -600,7 +639,7 @@ return false;">
 					}
 					if($dueDate && !$T['isoverdue'] && strcasecmp($T['status__state'],'closed') != 0) {
 						if($dueDate < strtotime("now")) { // unter 1 Std -> rot blinkend
-							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" class="Icon overdueTicket">';
+							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
 						}
 						elseif($dueDate < strtotime("+1 hour")) { // unter 1 Std -> rot blinkend
 							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Fällig in weniger als einer Stunde ('.$displayDueDate.')">';
@@ -616,7 +655,7 @@ return false;">
 						}
 					}
 					elseif($dueDate && $T['isoverdue'] && strcasecmp($T['status__state'],'closed') != 0) {
-						echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" class="Icon overdueTicket">';
+						echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
 					}
 					elseif(!$dueDate && strcasecmp($T['status__state'],'closed') != 0) {
 						echo '<img src="./images/dot_grey15x15.png" alt="" title="kein Fälligkeitsdatum">';
@@ -629,14 +668,14 @@ return false;">
                 ?>
                 <!-- Anpassung Fälligkeitsampel Ende -->
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
-                <td align="center">
+                <!-- <td align="center">
                 <?php 
 				require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
 				echo TS::formatPT(TS::getPTtotalByObjectId($T['ticket_id'], 'T'));
 				?>
-                </td>
+                </td> -->
                 <td><div style="max-width: <?php
-                    $base = 279;
+                    $base = 650;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
                     // Assume about 8px per digit character
@@ -666,17 +705,18 @@ return false;">
                         echo Format::htmlchars($un);
                     ?></span></div></td>
                 <?php
-                if($search && !$status){
+                // if($search && !$status){ ****edit Status****
                     $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
                     if(!strcasecmp($T['status__state'],'open'))
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
-                } else { ?>
+                // } else { ****edit Status****
+?>
                 <td class="nohover" align="center"
                     style="background-color:<?php echo $T['cdata__:priority__priority_color']; ?>;">
                     <?php echo $T['cdata__:priority__priority_desc']; ?></td>
                 <?php
-                }
+                // }
                 ?>
                 <td nowrap><span class="truncate" style="max-width: 169px"><?php
                     echo Format::htmlchars($lc); ?></span></td>

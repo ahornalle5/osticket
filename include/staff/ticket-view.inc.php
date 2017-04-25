@@ -1,3 +1,8 @@
+
+<head>
+<meta content="de" http-equiv="Content-Language">
+</head>
+
 <?php
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
@@ -836,11 +841,13 @@ if ($errors['err'] && isset($_POST['a'])) {
         <!-- merge form -->
         <?php
         if ($role->hasPerm(TicketModel::PERM_EDIT)) {
-			include(STAFFINC_DIR.'ticket-view.inc-mergeForm.php');
+            include 'ticket-merge.php';
+            // include 'ticket-view.inc-mergeForm.php';
         } ?>
         <!-- merge form -->
  </div>
  </div>
+
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
@@ -940,6 +947,11 @@ if ($errors['err'] && isset($_POST['a'])) {
     </form>
     <div class="clear"></div>
 </div>
+
+<!-- Fälligkeitsdatum -->
+<?php include 'ticket-duedate.php'; ?>
+<!-- Fälligkeitsdatum Ende -->
+
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'a.change-user', function(e) {
