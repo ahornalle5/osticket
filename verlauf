@@ -1,0 +1,19 @@
+mkdir osticket
+git init osticket
+cd osticket/
+git remote add origin https://github.com/ahornalle5/osticket.git
+git pull origin master
+git config --global push.default simple
+git push --set-upstream origin master
+git --help
+
+
+git pull                            # lade Aenderungen aus dem Server herunter
+git fetch                           # teste ob irgendwelche Aenderungen auf dem Server vorhanden sind
+git log                             # Zeige die Aenderungen zwischen aktuellen Zustand und den Server
+git push                            # Sende locale Aenderungen zum Server
+git config credential.helper store  # speichere Benutzername und Password
+git config --local -l               # liste lokale Einstellungen
+git config --global -l              # liste globale Einstellungen
+git commit -a                       # commit alle Änderungen
+git commit -a -m "Beschreibung"     # commit alle Änderungen mit Beschreibung = "Beschreibung"
