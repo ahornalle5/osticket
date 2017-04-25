@@ -1533,6 +1533,42 @@ implements RestrictedAccess, Threadable {
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
+
+    }
+
+     /*
+      * Wenn NotifyCollaborators eintritt, dann Status des Tickets auf "Warten auf Antwort" --> "Offen"
+      *
+      * Wähle ID des Tickets aus
+      * Ändere status_id in Datenbank von 7 auf 1
+      * ID = eigentliche ID
+      * Number = Nummer die im Ticket zu sehen ist
+      * $sql = "UPDATE `osticket`.`ost_ticket` SET `status_id` = '1' WHERE `ost_ticket`.`ticket_id`='20493';";
+      * return db_fetch_array(db_query($sql)
+      *
+      * Wenn Status "Warten auf Antwort", dann führe aus
+      * Wechsel Status von "Warten auf Antwort" in "Offen"
+      */
+    function onResponseStatusChange() {
+        global $cfg; // benötigt von der log2file Funktion
+
+        $getID = $this->getStatusId();
+        $cfg->log2file("onResponseStatusChange\t mainFunctionCall\t getID=$getID ", 'michal');
+        //Bereits getestet --> funktioniert
+        if($getID == '7') {
+            $staff = $this->getStaff();
+            $LastRespondent = $this->getLastRespondent();
+
+            $cfg->log2file("onResponseStatusChange\t getID=$getID, staff=$staff, LastRespondent=$LastRespondent, status=$status", 'michal');
+
+            // Wenn Name von Agent, dann keine Statusänderung
+            // Momentan mit 1 or ausgeschaltet, da dies eigentlich nie passieren sollte
+            if(1 or ($staff != $LastRespondent)) {
+                $status = $cfg->getDefaultTicketStatusId();
+                $cfg->log2file("onResponseStatusChange\t getID=$getID, staff=$staff, LastRespondent=$LastRespondent, status=$status", 'michal');
+                $this->setStatus($status);
+            }
+        }
     }
 
     function onMessage($message, $autorespond=true, $reopen=true) {
@@ -2344,6 +2380,10 @@ implements RestrictedAccess, Threadable {
 
         if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
+
+	// Statusaenderung wenn neue E-Mail ankommt als eine Antwort
+	if($reopen)
+	    $this->onResponseStatusChange();
 
         if (!($alerts && $autorespond))
             return $message; //Our work is done...
@@ -3698,6 +3738,10 @@ implements RestrictedAccess, Threadable {
 	function mergeTicket($kTicket) {
 		require(INCLUDE_DIR.'class.ticket-merge.inc.php');
 		return $return;
+    }
+
+    function getTicketID() {
+        return $ticket->getId();
     }
 
 }
