@@ -15,3 +15,5 @@ git push                            # Sende locale Aenderungen zum Server
 git config credential.helper store  # speichere Benutzername und Password
 git config --local -l               # liste lokale Einstellungen
 git config --global -l              # liste globale Einstellungen
+git commit -a                       # commit alle Änderungen
+git commit -a -m "Beschreibung"     # commit alle Änderungen mit Beschreibung = "Beschreibung"
