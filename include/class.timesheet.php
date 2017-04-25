@@ -451,8 +451,7 @@ class TS {
 				$res=db_query($sql);
 				list($vars['object_id'], $vars['object_type'])=db_fetch_row($res);
 				
-				$vars['created'] = (isset($vars['created']))?date_format($vars['created'], 'Y-m-d H:i:s'):FALSE;
-				$created = ($vars['created'])?db_input($vars['created']):'NOW()';
+				$created = (isset($vars['created']))?db_input($vars['created']):'NOW()';
 				$sql=' INSERT INTO '.TIMESHEET_TABLE.' SET '
 		           	.'  thread_id='.db_input($vars['thread_id'])
 		           	.' ,thread_entry_id='.db_input($vars['thread_entry_id'])
@@ -460,8 +459,8 @@ class TS {
 		           	.' ,object_type='.db_input($vars['object_type'])
 		           	.' ,staff_id='.db_input($vars['staff_id'])
 		           	.' ,processingTime='.db_input($vars['processingTime'])
-		           	.' ,processingTime_type_id=1' //.db_input($vars['processingTime_type_id'])// Abrechnungsart - bisher ungenutzt
-		           	//.' ,settled='.db_input($vars['staffId']) // abgerechnet? - bisher ungenutzt
+                    .' ,processingTime_type_id='.db_input($vars['processingTime'])
+                    //.' ,settled='.db_input($vars['staffId'])
 		           	.' ,created='.$created
 					;
 				if(!db_query($sql))

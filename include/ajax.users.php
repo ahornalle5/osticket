@@ -84,7 +84,7 @@ class UsersAjaxAPI extends AjaxController {
             if ($emails = array_filter($emails)) {
                 $users->union(User::objects()
                     ->values_flat('id', 'name', 'default_email__address')
-                    ->annotate(array('__relevance__' => new SqlCode(1)))
+                    // ->annotate(array('__relevance__' => new SqlCode(1)))
                     ->filter(array(
                         'emails__address__in' => $emails
                 )));
@@ -303,6 +303,8 @@ class UsersAjaxAPI extends AjaxController {
 
     function addRemoteUser($bk, $id) {
         global $thisstaff;
+
+        $id = str_replace('/','\\',$id);
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');

@@ -59,7 +59,7 @@ if ($user && $cfg->isAvatarsEnabled())
         </span>
         <?php
 		require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
-		$ts_entry_id = ($entry->editor != NULL)?$entry->pid:$entry->id;
+		$ts_entry_id = ($entry->pid != 0)?$entry->pid:$entry->id;
         TS::displayThreadEntryTime($ts_entry_id, $entry->type);
         ?>
         </div>
