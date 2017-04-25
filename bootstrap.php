@@ -5,7 +5,7 @@ class Bootstrap {
     static function init() {
         global $isApi;
 
-        $isApi = (isset($isApi))?$isApi:FALSE;
+        (isset($isApi))?$isApi=$isApi:$isApi='no';
         #Disable Globals if enabled....before loading config info
         if(ini_get('register_globals')) {
            ini_set('register_globals',0);
@@ -142,8 +142,6 @@ class Bootstrap {
     }
 
     function loadConfig() {
-        global $isApi;
-
         #load config info
         $configfile='';
         if(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
@@ -172,30 +170,20 @@ class Bootstrap {
         define('SESSION_SECRET', MD5(SECRET_SALT)); //Not that useful anymore...
         define('SESSION_TTL', 86400); // Default 24 hours
 
-        #SSL-Check for SSL use - API don´t work with SSL, so SSL is disabled for API
-        if(!defined('FORCE_SSL')) #should be defined in ./include/ost-config.php
-            define('FORCE_SSL','off');
+		#SSL-Check for SSL use - API don´t work with SSL, so SSL is disabled for API
+		if(!defined('FORCE_SSL')) #should be defined in ./include/ost-config.php
+			define('FORCE_SSL','off');
 
-        if((FORCE_SSL == 'yes' || FORCE_SSL == 'no') && !$isApi && !osTicket::is_cli()) {
-            $redirect = FALSE;
-            $protocol = '';
-            $uri = $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-            if(FORCE_SSL == 'yes' && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')) {
-                $redirect = TRUE;
-                $protocol = 'https://';
-            }
-            elseif(FORCE_SSL == 'no' && (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')) {
-                $redirect = TRUE;
-                $protocol = 'https://';
-            }
-
-            if($redirect && $protocol != '') {
-                header('HTTP/1.1 301 Moved Permanently');
-                Http::redirect($protocol.$uri);
-                exit();
-            }
-        }
-
+		if(FORCE_SSL != 'off' && $isApi != 'yes') {
+			if(FORCE_SSL == 'yes') {
+				if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')
+					header('Location: https://'.$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']));
+			}
+			elseif(FORCE_SSL == 'no') {
+				if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')
+					header('Location: http://'.$_SERVER['SERVER_NAME'].dirname($_SERVER['PHP_SELF']));
+			}
+		}
     }
 
     function connect() {

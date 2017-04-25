@@ -14,7 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 file_exists('../main.inc.php') or die('System Error');
-$isApi = TRUE; // for SSL-Check in bootstrap.php - no SSL vor API
+$isApi = 'yes'; // for SSL-Check in bootstrap.php - no SSL vor API
 
 // Disable sessions for the API. API should be considered stateless and
 // shouldn't chew up database records to store sessions
