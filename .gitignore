@@ -2,5 +2,4 @@
 setup/*
 setup-backup/*
 uploads/
-include/ost-config.php
 .*.swp
