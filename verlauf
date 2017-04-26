@@ -50,3 +50,14 @@ git log v2.5..v2.6                  # commits between v2.5 and v2.6
 git log v2.5..                      # commits since v2.5
 git log --since="2 weeks ago"       # commits from the last 2 weeks
 git log v2.5.. Makefile             # commits since v2.5 which modify Makefile
+
+# Tags
+git tag CUR_PROD HEAD               # tag HEAD as CUR_PROD 
+git tag -l                          # list existing tags
+git push --tag                      # send tags to repo / server 
+
+# Clean local tags, that are no more used on server side:
+git fetch --prune -tags             # seems not to work at all
+git push --tags origin && \
+git tag | xargs -n1 git tag -d && \
+git fetch --tags                    # seems to work
