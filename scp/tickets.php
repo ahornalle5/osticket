@@ -449,12 +449,19 @@ if($cfg->showAnsweredTickets()) {
 }
 
 if($stats['assigned']) {
-
     $nav->addSubMenu(array('desc'=>__('My Tickets').' ('.number_format($stats['assigned']).')',
                            'title'=>__('Assigned Tickets'),
                            'href'=>'tickets.php?status=assigned',
                            'iconclass'=>'assignedTickets'),
                         ($_REQUEST['status']=='assigned'));
+}
+
+if($stats['active']) {
+    $nav->addSubMenu(array('desc'=>__('My active tickets').' ('.number_format($stats['active']).')',
+                           'title'=>__('Assigned active tickets'),
+                           'href'=>'tickets.php?status=active',
+                           'iconclass'=>'activeTickets'),
+                        ($_REQUEST['status']=='active'));
 }
 
 if($stats['overdue']) {

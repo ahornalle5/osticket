@@ -546,6 +546,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return ($stats=$this->getTicketsStats())?$stats['assigned']:0;
     }
 
+    function getNumActiveTickets() {
+        return ($stats=$this->getTicketsStats())?$stats['active']:0;
+    }
+
     function getNumClosedTickets() {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }

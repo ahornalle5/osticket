@@ -157,6 +157,12 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
+                        if(($active=$staff->getNumActiveTickets()))
+                            $subnav[]=array('desc'=>__('My active tickets')." ($active)",
+                                            'href'=>'tickets.php?status=active',
+                                            'iconclass'=>'activeTickets',
+                                            'droponly'=>true);
+
                         if ($staff->hasPerm(TicketModel::PERM_CREATE, false))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),

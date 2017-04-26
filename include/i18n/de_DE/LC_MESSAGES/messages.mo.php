@@ -2994,7 +2994,8 @@ verwendet werden, um Sequenzen für unterschiedliche Zwecke zu erzeugen.',
   'No such ticket thread entry' => 'Kein entsprechender Eintrag des Ticketverlaufs',
   'Not a valid action for this thread' => 'Keine gültige Aktion für diesen Verlauf',
   'Select Priority' => 'Priorität auswählen',
-  'My active tickets' => 'Aktive Tickets',
+  'My active tickets' => 'Meine aktive Tickets',
+  'Assigned active tickets' => 'Zugewiesene aktive Tickets',
 
   0 => 
   array (

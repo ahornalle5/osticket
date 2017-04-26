@@ -2986,7 +2986,7 @@ implements RestrictedAccess, Threadable {
     	        ->filter(Q::any($visibility))
         	    ->filter(array('status__state' => 'open'))
             	->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            	->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
+                ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id', 'status_id');
 		}
 		// Anpassung MAs mit limited Access zeige Geschlossene Ende
 		
@@ -3010,14 +3010,20 @@ implements RestrictedAccess, Threadable {
             }
             if ($S['isoverdue'])
                 $stats['overdue'] += $S['count'];
-            if ($S['staff_id'] == $id)
+            if ($S['staff_id'] == $id) {
                 $stats['assigned'] += $S['count'];
+                if ($S['status_id'] != 7 and $S['status_id'] != 8) // 7 - warten auf Antwort, 8 - in Auftrag gegeben
+                    $stats['active'] += $S['count'];
+            }
             elseif ($S['team_id']
                     && $S['staff_id'] == 0
                     && $teams
-                    && in_array($S['team_id'], $teams))
+                    && in_array($S['team_id'], $teams)) {
                 // Assigned to my team but uassigned to an agent
                 $stats['assigned'] += $S['count'];
+                if ($S['status_id'] != 7 and $S['status_id'] != 8) // 7 - warten auf Antwort, 8 - in Auftrag gegeben
+                    $stats['active'] += $S['count'];
+            }
         }
         return $stats;
     }

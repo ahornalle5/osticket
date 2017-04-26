@@ -118,12 +118,13 @@ case 'overdue':
 case 'active':
     $status='open';
     $staffId=$thisstaff->getId();
-    $results_type=__('Active Tickets');
-    $tickets->filter(Q::any(array(
-        'staff_id'=>$thisstaff->getId(),
-        // Q::all(array('staff_id' => 0, 'team_id__gt' => 0, 'status_id__lt' => 7)), // hier geht es Los
-        Q::all(array('status_id' => 9)), // hier geht es Los
-        // Q::all(array('status_id__in' => array(0, 1, 2, 3, 4, 5, 6))) // und hier wird schon kaputt..
+    $results_type=__('My active tickets');
+    $tickets->filter(Q::all(array(
+        Q::any(array(
+            'staff_id'=>$thisstaff->getId(),
+            Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
+        )),
+        Q::not(array('status_id__in' => array('0' => 7, '1' => 8)))
     )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number', 'hot');
