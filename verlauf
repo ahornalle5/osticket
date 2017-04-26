@@ -17,36 +17,3 @@ git config --local -l               # liste lokale Einstellungen
 git config --global -l              # liste globale Einstellungen
 git commit -a                       # commit alle Änderungen
 git commit -a -m "Beschreibung"     # commit alle Änderungen mit Beschreibung = "Beschreibung"
-
-git show c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
-git show c82a22c39c                 # the first few characters of the name are usually enough
-git show HEAD                       # the tip of the current branch
-git show experimental               # the tip of the "experimental" branch
-
-# Every commit usually has one "parent" commit which points to the previous state of the project:
-git show HEAD^                      # to see the parent of HEAD
-git show HEAD^^                     # to see the grandparent of HEAD
-git show HEAD~4                     # to see the great-great grandparent of HEAD
-
-# Note that merge commits may have more than one parent:
-git show HEAD^1                     # show the first parent of HEAD (same as HEAD^)
-git show HEAD^2                     # show the second parent of HEAD
-
-git tag v2.5 1b2e1d63ff             # You can also give commits names of your own; you can refer 
-                                    # to 1b2e1d63ff by the name "v2.5"
-
-# Any Git command that needs to know a commit can take any of these names. For example:
-git diff v2.5 HEAD                  # compare the current HEAD to v2.5
-git branch stable v2.5              # start a new branch named "stable" based at v2.5
-git reset --hard HEAD^              # reset your current branch and working directory to its state at HEAD^
-
-# The git grep command can search for strings in any version of your project, so
-git grep "hello" v2.5
-git grep "hello"
-
-#Many Git commands also take sets of commits, which can be specified in a number of ways. Here are some examples with git log:
-
-git log v2.5..v2.6                  # commits between v2.5 and v2.6
-git log v2.5..                      # commits since v2.5
-git log --since="2 weeks ago"       # commits from the last 2 weeks
-git log v2.5.. Makefile             # commits since v2.5 which modify Makefile
