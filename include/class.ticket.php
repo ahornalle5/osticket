@@ -1544,7 +1544,7 @@ implements RestrictedAccess, Threadable {
       * ID = eigentliche ID
       * Number = Nummer die im Ticket zu sehen ist
       * $sql = "UPDATE `osticket`.`ost_ticket` SET `status_id` = '1' WHERE `ost_ticket`.`ticket_id`='20493';";
-      * return db_fetch_array(db_query($sql)
+      * return db_fetch_array(db_query($sql));
       *
       * Wenn Status "Warten auf Antwort", dann führe aus
       * Wechsel Status von "Warten auf Antwort" in "Offen"
@@ -3737,6 +3737,7 @@ implements RestrictedAccess, Threadable {
 	// function for ticket merge
 	function mergeTicket($kTicket) {
 		require(INCLUDE_DIR.'class.ticket-merge.inc.php');
+		// require(INCLUDE_DIR.'ticket-merge.php');
 		return $return;
     }
 
