@@ -1,5 +1,6 @@
 #.gitignore
 setup/*
 setup-backup/*
-uploads/
+uploads/*
+!uploads/readme.txt
 .*.swp
