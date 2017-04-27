@@ -124,7 +124,7 @@ case 'active':
             'staff_id'=>$thisstaff->getId(),
             Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
         )),
-        Q::not(array('status_id__in' => array('0' => 7, '1' => 8)))
+        Q::not(array('status_id__in' => array('0' => 7)))
     )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number', 'hot');

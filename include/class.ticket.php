@@ -3012,7 +3012,7 @@ implements RestrictedAccess, Threadable {
                 $stats['overdue'] += $S['count'];
             if ($S['staff_id'] == $id) {
                 $stats['assigned'] += $S['count'];
-                if ($S['status_id'] != 7 and $S['status_id'] != 8) // 7 - warten auf Antwort, 8 - in Auftrag gegeben
+                if ($S['status_id'] != 7) // 7 - warten auf Antwort
                     $stats['active'] += $S['count'];
             }
             elseif ($S['team_id']
@@ -3021,7 +3021,7 @@ implements RestrictedAccess, Threadable {
                     && in_array($S['team_id'], $teams)) {
                 // Assigned to my team but uassigned to an agent
                 $stats['assigned'] += $S['count'];
-                if ($S['status_id'] != 7 and $S['status_id'] != 8) // 7 - warten auf Antwort, 8 - in Auftrag gegeben
+                if ($S['status_id'] != 7) // 7 - warten auf Antwort
                     $stats['active'] += $S['count'];
             }
         }
