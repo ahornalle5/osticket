@@ -2996,6 +2996,7 @@ verwendet werden, um Sequenzen für unterschiedliche Zwecke zu erzeugen.',
   'Select Priority' => 'Priorität auswählen',
   'My active tickets' => 'Meine aktive Tickets',
   'Assigned active tickets' => 'Zugewiesene aktive Tickets',
+  'Belongs to ticket' => 'Gehört zum Ticket',
 
   0 => 
   array (

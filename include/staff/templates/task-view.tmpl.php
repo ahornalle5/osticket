@@ -390,6 +390,22 @@ if (!$ticket) { ?>
                            ?>
                         </td>
                     </tr>
+                    <?php
+                    if($task->ht['object_id']) { ?>
+                    <tr>
+                        <th><?php echo __('Belongs to ticket');?>:</th>
+                        <td>
+                            <?php
+                                $ticket=Ticket::lookup($task->ht['object_id']);
+                            ?>
+                                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
+                                 title="<?php echo __('Reload'); ?>">
+                                 <?php echo sprintf(__('#%s'), $ticket->getNumber()); ?></a>
+                            <?php
+                             }
+                            ?>
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
