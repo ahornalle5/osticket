@@ -4,3 +4,4 @@ setup-backup/*
 uploads/*
 !uploads/readme.txt
 .*.swp
+include/mpdf/ttfontdata/*
