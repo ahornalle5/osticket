@@ -234,7 +234,7 @@ case 'open':
 
 // Open queues _except_ assigned should respect showAssignedTickets()
 // settings
-if ($status != 'closed' && $queue_name != 'assigned') {
+if ($status != 'closed' && ($queue_name != 'assigned' && $queue_name != 'active')) {
     $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$thisstaff->showAssignedTickets();
     $showassigned = !$hideassigned;
     if ($queue_name == 'open' && $hideassigned)
