@@ -3746,8 +3746,7 @@ implements RestrictedAccess, Threadable {
 
     static function checkOverwaiting() {
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
-            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
-                ON (status.id=T1.status_id AND status.state="open") '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status ON (status.id=T1.status_id AND status.state="open") '
             .' WHERE T1.status_id=7 '
             .' AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.updated))>=5*24*3600 ' // 5 days in seconds
             .' ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
