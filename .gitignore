@@ -1,7 +1,17 @@
+# GIT Ignore file should be versioned
 #.gitignore
+
+# osTicket native directories
 setup/*
 setup-backup/*
+
+# osTicket working directories
 uploads/*
 !uploads/readme.txt
-.*.swp
 include/mpdf/ttfontdata/*
+
+# vim swap files
+.*.swp
+
+# PhpStorm idea directory
+.idea
