@@ -28,6 +28,7 @@ class Cron {
     function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
+        Ticket::checkOverwaiting(); //Make unanswered tickets to status 9
         // Cleanup any expired locks
         require_once(INCLUDE_DIR.'class.lock.php');
         Lock::cleanup();

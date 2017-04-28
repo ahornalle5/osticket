@@ -2015,6 +2015,16 @@ implements RestrictedAccess, Threadable {
         return true;
     }
 
+    function markOverwaiting($whine=true) {
+        global $cfg;
+
+        $this->setStatus(9);
+
+        $this->logEvent('overwaiting');
+
+        return true;
+    }
+
     function clearOverdue($save=true) {
         if (!$this->isOverdue())
             return true;
@@ -3699,6 +3709,7 @@ implements RestrictedAccess, Threadable {
         return $ticket;
     }
 
+
     static function checkOverdue() {
         /*
         $overdue = static::objects()
@@ -3731,7 +3742,24 @@ implements RestrictedAccess, Threadable {
             //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
 
         }
-   }
+    }
+
+    static function checkOverwaiting() {
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id=T1.status_id AND status.state="open") '
+            .' WHERE T1.status_id=7 '
+            .' AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.updated))>=5*24*3600 ' // 5 days in seconds
+            .' ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if ($ticket=Ticket::lookup($id))
+                    $ticket->markOverwaiting();
+            }
+        } else {
+        }
+    }
 
     static function agentActions($agent, $options=array()) {
         if (!$agent)
