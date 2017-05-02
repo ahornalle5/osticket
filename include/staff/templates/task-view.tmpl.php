@@ -400,7 +400,7 @@ if (!$ticket) { ?>
                             ?>
                                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
                                  title="<?php echo __('Reload'); ?>">
-                                 <?php echo sprintf(__('#%s'), $ticket->getNumber()); ?></a>
+                                 <?php echo sprintf(__('#%s'), $ticket->getNumber()); echo " ".$ticket->getSubject(); ?></a>
                             <?php
                              }
                             ?>
