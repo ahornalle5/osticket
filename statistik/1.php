@@ -22,16 +22,16 @@ $db_select = @ mysql_select_db( $db_name );
 
 ?>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Ticketsystem Statistik</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>Ticketsystem Statistik</title>
         <!-- link calendar resources -->
         <link rel="stylesheet" type="text/css" href="tcal.css" />
 	<script type="text/javascript" src="language.js"></script> 
         <script type="text/javascript" src="tcal.js"></script>
-</head>
+    </head>
 <body>
-<table border=1>
+    <table border=1>
 <?php
 
 foreach($liste as $id){
@@ -359,13 +359,14 @@ if(isset($_GET['not'])){
 echo "&not=1";
 }
 
-echo ".'>"
+echo ".'>";
 /*
 if(isset($_GET['ausb'])){
 echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&ausb=1&t=".$t."&h=".$h."&tab=2'>";
 }else{
 echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&t=".$t."&h=".$h."&tab=2'>";
-}//if*/
+}
+// */ //if*/
 
 echo $count2[$t][$h];
 echo "</a></td>";

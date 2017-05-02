@@ -19,9 +19,9 @@ $meldung="kein cookie gesetzt - cookie setzen";
 //setcookie ("cookie", "TEST");
 }
 if(isset($_POST['absenden'])){
-if(isset($_POST['name_hinzu')){
+    if(isset($_POST['name_hinzu'])){
 
-}
+    }
 if(preg_match('/^([0-9X]+)/',$_POST['liste'],$match)){
 $neu=$match[0];
 setcookie ("cookie", "$neu");
