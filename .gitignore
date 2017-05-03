@@ -15,3 +15,5 @@ include/mpdf/ttfontdata/*
 
 # PhpStorm idea directory
 .idea
+/nbproject/project.properties
+/nbproject/project.xml

@@ -7,7 +7,7 @@ $view_all_tickets = $date_header = $date_col = false;
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
 
-// Figure out REFRESH url — which might not be accurate after posting a
+// Figure out REFRESH url - which might not be accurate after posting a
 // response
 list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
 $args = array();
@@ -39,7 +39,7 @@ $queue_columns = array(
             'width' => '5%',
             'heading' => __('Ticket'),
             ),
-        'trafficlights' => array(// Anpassung Fälligkeitsampel
+        'trafficlights' => array(// Anpassung Faelligkeitsampel
             'width' => '2%',
             'heading' => '<img src="./images/dot_grey15x15.png" alt="">',
             'sort_col' => 'trafficlights',
@@ -190,7 +190,7 @@ case 'search':
     // Apply user filter
     elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
         $tickets->filter(array('user__id'=>$_GET['uid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
+        $results_type = sprintf('%s - %s', __('Search Results'),
             $user->getName());
         if (isset($_GET['status']))
             $status = $_GET['status'];
@@ -199,7 +199,7 @@ case 'search':
     }
     elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
         $tickets->filter(array('user__org_id'=>$_GET['orgid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
+        $results_type = sprintf('%s - %s', __('Search Results'),
             $org->getName());
         if (isset($_GET['status']))
             $status = $_GET['status'];
@@ -226,6 +226,24 @@ case 'open':
     $results_type=__('Open Tickets');
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
+    $queue_sort_options = array('priority,updated', 'updated',
+        'priority,due', 'due', 'priority,created', 'answered', 'number',
+        'hot');
+    break;
+case 'openactive':
+    $status='open';
+    $queue_name = $queue_name ?: 'openactive';
+    $results_type=__('Open active tickets');
+    if (!$cfg->showAnsweredTickets()) {
+        $tickets->filter(Q::all(array(
+                array('isanswered'=>0),
+                Q::not(array('status_id__in' => array('0' => 7)))
+                )));
+    } else {
+        $tickets->filter(
+                Q::not(array('status_id__in' => array('0' => 7)))
+                );
+    }
     $queue_sort_options = array('priority,updated', 'updated',
         'priority,due', 'due', 'priority,created', 'answered', 'number',
         'hot');
@@ -338,7 +356,7 @@ case 'time':
     $queue_columns['time']['heading'] = __('Time');
     $queue_columns['time']['sort'] = 'due';
     $queue_columns['time']['sort_col'] = $date_col = 'est_duedate';
-case 'trafficlights':// Anpassung Fälligkeitsampel
+case 'trafficlights':// Anpassung Faelligkeitsampel
     $queue_columns['trafficlights']['heading'] = ($sort_dir)?'<img src="./images/dot_red15x15.png" alt="">':'<img src="./images/dot_green15x15.png" alt="">';
     $queue_columns['trafficlights']['sort'] = 'trafficlights';
     $queue_columns['trafficlights']['sort_col'] = $date_col = 'est_duedate';
@@ -347,7 +365,7 @@ case 'due':
     $queue_columns['date']['heading'] = __('Due Date');
     $queue_columns['date']['sort'] = 'due';
     $queue_columns['date']['sort_col'] = $date_col = 'est_duedate';
-    //$tickets->values('est_duedate');// Anpassung Fälligkeitsampel
+    //$tickets->values('est_duedate');// Anpassung Faelligkeitsampel
     $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
     break;
 
@@ -407,12 +425,12 @@ case 'updated':
     $tickets->order_by('lastupdate', $orm_dir);
     break;
 }
-// Anpassung Fälligkeitsampel Anfang
+// Anpassung Faelligkeitsampel Anfang
 $tickets->values('sla');
 $tickets->values('duedate');
 $tickets->values('est_duedate');
 
-// Anpassung Fälligkeitsampel Ende
+// Anpassung Faelligkeitsampel Ende
 
 if (in_array($sort_cols, array('created', 'due', 'updated')))
     $queue_columns['date']['sort_dir'] = $sort_dir;
@@ -522,7 +540,7 @@ return false;">
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
-            <!-- Erste Spalte für Kästchen -->
+            <!-- Erste Spalte fuer Kaestchen -->
             <?php
             if ($thisstaff->canManageTickets()) { ?>
 	        <th style="width: 2%">&nbsp;</th>
@@ -546,7 +564,7 @@ return false;">
             //    unset($queue_columns['priority']); ****edit Status****
             //else ****edit Status****
             //    unset($queue_columns['status']); ****edit Status****
-            if ($status == 'closed')// Anpassung Fälligkeitsampel
+            if ($status == 'closed')// Anpassung Faelligkeitsampel
                 unset($queue_columns['trafficlights']);
 
             // Query string
@@ -628,7 +646,7 @@ return false;">
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
-				<!-- Anpassung Fälligkeitsampel Anfang - nur anzeigen, wenn Status nicht geschlossen -->
+				<!-- Anpassung Faelligkeitsampel Anfang - nur anzeigen, wenn Status nicht geschlossen -->
 				<?php 
 				if ($status != 'closed') {
 					echo '<td align="center" nowrap>';
@@ -640,26 +658,26 @@ return false;">
 					}
 					if($dueDate && !$T['isoverdue'] && strcasecmp($T['status__state'],'closed') != 0) {
 						if($dueDate < strtotime("now")) { // unter 1 Std -> rot blinkend
-							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
+							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits ueberfaellig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
 						}
 						elseif($dueDate < strtotime("+1 hour")) { // unter 1 Std -> rot blinkend
-							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Fällig in weniger als einer Stunde ('.$displayDueDate.')">';
+							echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Faellig in weniger als einer Stunde ('.$displayDueDate.')">';
 						}
 						elseif($dueDate < strtotime("+3 hour")) { // unter 3 Std -> rot statisch
-							echo '<img src="./images/dot_red15x15.png" alt="" title="Fällig in weniger als 3 Stunden ('.$displayDueDate.')">';
+							echo '<img src="./images/dot_red15x15.png" alt="" title="Faellig in weniger als 3 Stunden ('.$displayDueDate.')">';
 						}
 						elseif($dueDate < strtotime("+12 hour")) { // unter 12 Std -> gelb statisch
 							echo '<img src="./images/dot_yellow15x15.png" alt="" title="Fällig in weniger als 12 Stunden ('.$displayDueDate.')">';
 						}
-						else { // mehr als 12 Std -> grün statisch
-							echo '<img src="./images/dot_green15x15.png" alt="" title="Fällig in mehr als 12 Stunden ('.$displayDueDate.')">';
+						else { // mehr als 12 Std -> gruen statisch
+							echo '<img src="./images/dot_green15x15.png" alt="" title="Faellig in mehr als 12 Stunden ('.$displayDueDate.')">';
 						}
 					}
 					elseif($dueDate && $T['isoverdue'] && strcasecmp($T['status__state'],'closed') != 0) {
-						echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits überfällig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
+						echo '<img src="./images/dot_red_blink15x15.gif" alt="" title="Das Ticket ist bereits Ueberfaellig ('.$displayDueDate.')" >'; // class="Icon overdueTicket" wurde bei beiden herausgenommen
 					}
 					elseif(!$dueDate && strcasecmp($T['status__state'],'closed') != 0) {
-						echo '<img src="./images/dot_grey15x15.png" alt="" title="kein Fälligkeitsdatum">';
+						echo '<img src="./images/dot_grey15x15.png" alt="" title="kein Faelligkeitsdatum">';
 					}
 					elseif(strcasecmp($T['status__state'],'closed') == 0) {
 						echo '<img src="./images/dot_grey15x15.png" alt="" title="Ticket geschlossen">';
@@ -667,7 +685,7 @@ return false;">
 					echo '</td>';
 				}
                 ?>
-                <!-- Anpassung Fälligkeitsampel Ende -->
+                <!-- Anpassung Faelligkeitsampel Ende -->
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <!-- <td align="center">
                 <?php 

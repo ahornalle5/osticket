@@ -428,6 +428,11 @@ if($cfg->showAnsweredTickets()) {
                             'href'=>'tickets.php?status=open',
                             'iconclass'=>'Ticket'),
                         ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
+    $nav->addSubMenu(array('desc'=>__('Open active tickets').' ('.number_format($stats['openactive']+$stats['answered']).')',
+                            'title'=>__('All open tickets not waiting for answer'),
+                            'href'=>'tickets.php?status=openactive',
+                            'iconclass'=>'openactiveTickets'),
+                        ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='openactive'));
 } else {
 
     if ($stats) {
@@ -437,6 +442,11 @@ if($cfg->showAnsweredTickets()) {
                                'href'=>'tickets.php?status=open',
                                'iconclass'=>'Ticket'),
                             ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
+        $nav->addSubMenu(array('desc'=>__('Open active tickets').' ('.number_format($stats['openactive']).')',
+                                'title'=>__('All open tickets not waiting for answer'),
+                                'href'=>'tickets.php?status=openactive',
+                                'iconclass'=>'openactiveTickets'),
+                            ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='openactive'));
     }
 
     if($stats['answered']) {
