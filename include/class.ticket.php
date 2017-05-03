@@ -1244,7 +1244,7 @@ implements RestrictedAccess, Threadable {
         if (!$this->save())
             return false;
 
-        // Log status change b4 reload â€” if currently has a status. (On new
+        // Log status change b4 reload - if currently has a status. (On new
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
         if ($hadStatus) {
@@ -1540,14 +1540,14 @@ implements RestrictedAccess, Threadable {
      /*
       * Wenn NotifyCollaborators eintritt, dann Status des Tickets auf "Warten auf Antwort" --> "Offen"
       *
-      * Wähle ID des Tickets aus
-      * Ändere status_id in Datenbank von 7 auf 1
+      * Waehle ID des Tickets aus
+      * Aendere status_id in Datenbank von 7 auf 1
       * ID = eigentliche ID
       * Number = Nummer die im Ticket zu sehen ist
       * $sql = "UPDATE `osticket`.`ost_ticket` SET `status_id` = '1' WHERE `ost_ticket`.`ticket_id`='20493';";
       * return db_fetch_array(db_query($sql));
       *
-      * Wenn Status "Warten auf Antwort", dann führe aus
+      * Wenn Status "Warten auf Antwort", dann fuehre aus
       * Wechsel Status von "Warten auf Antwort" in "Offen"
       */
     function onResponseStatusChange() {
@@ -1560,7 +1560,7 @@ implements RestrictedAccess, Threadable {
 
             // log2file("onResponseStatusChange\t getID=$getID, staff=$staff, LastRespondent=$LastRespondent, status=$status", 'michal');
 
-            // Wenn Name von Agent, dann keine Statusänderung
+            // Wenn Name von Agent, dann keine Statusaenderung
             // Momentan mit 1 or ausgeschaltet, da dies eigentlich nie passieren sollte
             if(1 or ($staff != $LastRespondent)) {
                 global $cfg; 
@@ -2363,7 +2363,7 @@ implements RestrictedAccess, Threadable {
 
                 if (($user=User::fromVars($recipient)))
                     if ($c=$this->addCollaborator($user, $info, $errors, false))
-                        // FIXME: This feels very unwise â€” should be a
+                        // FIXME: This feels very unwise - should be a
                         // string indexed array for future
                         $collabs[$c->user_id] = array(
                             'name' => $c->getName()->getOriginal(),
@@ -2808,7 +2808,7 @@ implements RestrictedAccess, Threadable {
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if (!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] = sprintf('%s â€” %s',
+            $errors['err'] = sprintf('%s - %s',
                 __('Missing or invalid data'),
                 __('Correct any errors below and try again'));
 
@@ -3012,7 +3012,7 @@ implements RestrictedAccess, Threadable {
         $id = $staff->getId();
         foreach ($blocks as $S) {
             if ($showanswered || !$S['isanswered']) {
-                if (!($hideassigned && ($S['staff_id'] || $S['team_id'])))
+                if (!($hideassigned && ($S['staff_id'] || $S['team_id']))) 
                     $stats['open'] += $S['count'];
             }
             else {
@@ -3202,7 +3202,7 @@ implements RestrictedAccess, Threadable {
         }
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] = sprintf('%s â€” %s',
+            $errors['err'] = sprintf('%s - %s',
                 __('Missing or invalid data'),
                 __('Correct any errors below and try again'));
 
@@ -3229,7 +3229,7 @@ implements RestrictedAccess, Threadable {
                             if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
                                 $disabled[] = $field->get('id');
                         }
-                        // Special handling for the ticket form â€”Â disable fields
+                        // Special handling for the ticket form -Â disable fields
                         // requested to be disabled as per the help topic.
                         if ($__F->get('type') == 'T') {
                             foreach ($form->getFields() as $field) {
