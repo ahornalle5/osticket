@@ -21,7 +21,7 @@ if ($lang) {
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
-    <title><?php echo Format::htmlchars($title); ?></title>
+    <title><?php echo ($_SERVER['HTTP_HOST'] == 'ticketsystem' ? '' : 'TEST ').Format::htmlchars($title); ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
@@ -89,7 +89,7 @@ if ($lang) {
         if (strpos($h, '<script ') !== false)
             echo $h;
     } ?>
-    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title><?php
+    <title><?php echo ($_SERVER['HTTP_HOST'] == 'ticketsystem' ? '' : 'TEST ').($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title><?php
 } # endif X_PJAX ?>
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
