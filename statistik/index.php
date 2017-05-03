@@ -1,5 +1,57 @@
-
 <!DOCTYPE html>
+<?php
+$liste=array();
+if (isset($_COOKIE['userl'])) {
+        $liste = $_COOKIE['userl'];
+if(preg_match_all('/(\d+)/',$liste,$match)){
+$liste=$match[0];
+}
+}
+
+if(isset($_POST['action'])){
+#echo "<b>".$_POST['action']."</b><br>";
+if(($_POST['action']=='entf')&&(isset($_POST['ent']))){
+#echo "<pre>ENTF-".$_POST['ent']."-</pre><br>";
+if(preg_match('/^(\d+)/',$_POST['ent'],$match)){
+#echo $match[0];
+unset($liste[array_search($match[0], $liste)]);
+// Und um den Index wiederherzustellen
+$liste = array_values($liste);
+}
+}
+if(($_POST['action']=='hinz')&&(isset($_POST['hin']))){
+#echo "HINZU".$_POST['hin'];
+if(preg_match('/^(\d+)/',$_POST['hin'],$match)){
+#echo $match[0];
+array_push($liste, $match[0]);
+}
+}
+setcookie ("userl", implode('X',$liste));
+}
+
+/*
+setcookie ("cookie", "6X7X8");
+if (isset($_COOKIE['cookie'])) {
+        $liste = $_COOKIE['cookie'];
+if(preg_match_all('/(\d+)/',$liste,$match)){
+$liste=$match[0];
+}
+}
+*/
+/* Datenbankserver - In der Regel die IP */
+$db_server = 'localhost';
+/* Datenbankname */
+$db_name = 'osticket';
+/* Datenbankuser */
+$db_user = 'stat';
+/* Datenbankpasswort */
+$db_passwort = 'hjuvRcUswSX9n8aT';
+/* Erstellt Connect zu Datenbank her */
+$db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
+$db_select = @ mysql_select_db( $db_name );
+
+
+?>
 <html>
   <head>
     <meta charset="UTF-8">
@@ -10,8 +62,37 @@
         <script type="text/javascript" src="tcal.js"></script>
 </head>
 <body>
+Liste Benutzerauswahl:<br>
+<table border=1>
 <?php
+foreach($liste as $id){
+$sql = "SELECT us.id,
+us.name,
+ue.address
+FROM ost_user AS us
+LEFT JOIN ost_user_email AS ue ON us.id = ue.id
+WHERE us.id = $id
+ORDER BY us.name
+";
 
+/*
+$sql = "SELECT us.id, 
+us.name
+
+FROM ost_user AS us
+WHERE us.id = $id
+ORDER BY us.name
+";
+*/
+
+$result = mysql_query ( $sql );
+$menge = mysql_num_rows ( $result );
+$row = mysql_fetch_row ( $result );
+#var_dump( $result);
+echo "<tr><td>$row[0]</td><td>$row[1]</td><td>$row[2]</td></tr>";
+
+}//foreach($liste as $id)
+echo "</table>";
 $t1_array=array(
 0 => 0,
 1 => 0,
@@ -49,6 +130,66 @@ preg_match ( '/([^\/]+$)/' ,$burl ,$match);
 $burl=$match[0];
 #echo "<b>$url<br>$burl</b><br>";
 
+echo '<form action="'.$burl.'" method="POST">
+  <p>
+    <label>
+      User entfernen
+      <input type="search" list="user" name="ent" size=75 autocomplete="off" >
+<datalist id="user">
+';
+foreach($liste as $id){
+
+$sql ="SELECT us.id,
+us.name,
+ue.address
+FROM ost_user AS us
+LEFT JOIN ost_user_email AS ue ON us.id = ue.id
+WHERE us.id = $id
+ORDER BY us.name
+";
+#echo "<pre>$id\n$sql</pre>";
+$result = mysql_query ( $sql );
+$menge = mysql_num_rows ( $result );
+#echo $menge;
+$row = mysql_fetch_row ( $result );
+#var_dump( $result);
+echo "<option value=\"$row[0] $row[1] $row[2]\">\n";
+}//foreach($liste as $id)
+echo '</datalist>
+    </label>
+    <button type="submit" name="action" value="entf">entfernen</button>
+  </p>
+</form>';
+$sql = "SELECT us.id,
+us.name,
+ue.address
+FROM ost_user AS us
+LEFT JOIN ost_user_email AS ue ON us.id = ue.id
+ORDER BY us.name
+";
+
+$result = mysql_query ( $sql );
+$menge = mysql_num_rows ( $result );
+#echo "SQL ERGEBNISSE: $menge<br>";
+
+echo '<form action="'.$burl.'" method="POST">
+  <p>
+    <label>
+      User hinzuf&uuml;gen
+      <input type="search" list="userh" name="hin" size=75 autocomplete="off">
+<datalist id="userh">
+';
+
+while ( $row = mysql_fetch_row ( $result ) ){
+echo "<option value=\"$row[0] $row[1] $row[2]\">\n";
+}//while
+
+echo '</datalist>
+    </label>
+    <button type="submit" name="action" value="hinz">hinzuf&uuml;gen</button>
+  </p>
+</form>
+<hr>';
 if(isset($_GET["t"])&&isset($_GET["h"])){
 if(preg_match ( '/^(\d+)/' ,$_GET["t"] ,$match)){
 $t1=$match[0];
@@ -78,20 +219,34 @@ von <input type="text" name="date" class="tcal" value="'.$von.'" /><br>
 bis <input type="text" name="date2" class="tcal" value="'.$bis.'" /><br>';
 $wt = array('So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa');
 
-if(isset($_GET['absenden'])){
 
+if(isset($_GET['ausw'])){
+echo '<input type="checkbox" name="ausw" value="1" checked="checked"/>Benutzerauswahl anwenden<br>';
+}else{
+echo '<input type="checkbox" name="ausw" value="1" />Benutzerauswahl anwenden<br>';
+}//if(isset($_GET['ausschl']))
+
+
+if(isset($_GET['not'])){
+echo '<input type="checkbox" name="not" value="1" checked="checked"/>Benutzerauswahl umkehren<br>';
+}else{
+echo '<input type="checkbox" name="not" value="1" />Benutzerauswahl umkehren<br>';
+}//if(isset($_GET['not']))
+
+
+if(isset($_GET['absenden'])){
 if(isset($_GET['ausb'])){
 echo '<input type="checkbox" name="ausb" value="1" checked="checked"/>automatische ausblenden<br>';
 }else{
 echo '<input type="checkbox" name="ausb" value="1" />automatische ausblenden<br>';
 }//if(isset($_GET['ausb'])){
-
 }else{
 echo '<input type="checkbox" name="ausb" value="1" checked="checked"/>automatische ausblenden<br>';
 }//if(isset($_GET['absenden'])){
 
 echo '<input type="submit" name="absenden" value="Abfrage absenden">
-</form>';
+</form>
+<hr>';
 
 
 if(isset($_GET['absenden'])){
@@ -101,17 +256,7 @@ $von=$match[0];
 preg_match('/^(\d\d\d\d\-\d\d-\d\d)/',$_GET['date2'],$match);
 $bis=$match[0];
 #echo 'bis:'.$bis.'<br>';
-/* Datenbankserver - In der Regel die IP */
-$db_server = 'localhost';
-/* Datenbankname */
-$db_name = 'osticket';
-/* Datenbankuser */
-$db_user = 'stat';
-/* Datenbankpasswort */
-$db_passwort = 'hjuvRcUswSX9n8aT';
-/* Erstellt Connect zu Datenbank her */
-$db = @ mysql_connect ( $db_server, $db_user, $db_passwort );
-$db_select = @ mysql_select_db( $db_name );
+
 
 $sql = "SELECT tk.ticket_id,
 tk.created,
@@ -133,9 +278,23 @@ AND cd.subject NOT REGEXP '^WSUS: Warnung zu neuen Updates von AHORNWSUS01'
 AND cd.subject NOT REGEXP '^System Notification from ahorndata-backup'
 ";
 }//if(isset($_GET['ausb']))
+
+
+if(isset($_GET['ausw'])){
+if (isset($_GET['not'])){
+$sql.="AND NOT us.id IN (";
+}else{
+$sql.="AND us.id IN (";
+}//if (isset($_GET['not']))
+$sql.=join(",",$liste);
+$sql.=")\n";
+}//if (isset($ausw))
+
 $sql.="ORDER BY tk.created";
 
 #echo '<br><pre>'.$sql.'</pre><br>';
+
+
 $result = mysql_query ( $sql );
 $menge = mysql_num_rows ( $result );
 echo '<td><b>SQL Ergebnisse:' . $menge.'</b><br>';
@@ -198,10 +357,9 @@ $i=mktime(0, 0, 0, $monat, $tag+1, $jahr); //nächster Tag
 echo "$tage_d Tage gesamt<br>";
 echo "$tage_wt Wochentage<br>";
 
-
-for($t=0;$t<7;$t++){
+/*for($t=0;$t<7;$t++){
 echo "$wt[$t] $tc_array[$t]<br>";
-}
+}*/
 
 
 for($x=0;$x<7;$x++){
@@ -222,15 +380,6 @@ $username=$row[3];
 $w= date("w",strtotime($created));
 $h= date("G",strtotime($created));
 $co[$x][$t1_array[$h]]++;
-//if($h<6){
-//$co[$x][5]++;
-//#echo "5<br>";
-//}elseif($h>=20){
-//$co[$x][20]++;
-//#echo "20<br>";
-//}else{
-//$co[$x][$h]++;
-//}
 
 $count2[$x][$h]++;
 
@@ -248,10 +397,6 @@ echo "<b>Detail: $ticket_id : $created : ".$username." : &quot;".$subject."&quot
 }//foreach
 }//for x
 
-
-
-
-
 echo "Summen für die einzelnen Tage und Stunden:<br><table border=1><tr><th>X</th>";
 $anf=0;
 for ($h=0;$h<24;$h++){
@@ -268,12 +413,18 @@ $anf=0;
 for ($h=0;$h<24;$h++){
 if(($t1_array[$h] >$anf)||($h>=23)){
 
+echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&t=".$t."&h=".$anf."&tab=1";
 if(isset($_GET['ausb'])){
-echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&ausb=1&t=".$t."&h=".$anf."&tab=1'>";
-}else{
-echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&t=".$t."&h=".$anf."&tab=1'>";
+echo "&ausb=1";
 }//if(isset($_GET['ausb'])){
-echo $co[$t][$anf];
+if(isset($_GET['ausw'])){
+echo "&ausw=1";
+}
+if(isset($_GET['not'])){
+echo "&not=1";
+}
+
+echo "'>".$co[$t][$anf];
 echo "</a></td>";
 $anf=$t1_array[$h];
 }//if($t1_array[$h] >$anf){
@@ -294,11 +445,28 @@ for ($t=0;$t<7;$t++){
 echo "<td>$wt[$t]</td>";
 
 for ($h=0;$h<24;$h++){
+
+
+echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&t=".$t."&h=".$h."&tab=2";
+if(isset($_GET['ausb'])){
+echo "&ausb=1";
+}//if(isset($_GET['ausb'])){
+if(isset($_GET['ausw'])){
+echo "&ausw=1";
+}
+if(isset($_GET['not'])){
+echo "&not=1";
+}
+
+echo "'>";
+
+/*
 if(isset($_GET['ausb'])){
 echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&ausb=1&t=".$t."&h=".$h."&tab=2'>";
 }else{
 echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&t=".$t."&h=".$h."&tab=2'>";
-}//if
+}//if*/
+
 echo $count2[$t][$h];
 echo "</a></td>";
 }//for h
