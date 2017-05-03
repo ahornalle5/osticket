@@ -3012,8 +3012,11 @@ implements RestrictedAccess, Threadable {
         $id = $staff->getId();
         foreach ($blocks as $S) {
             if ($showanswered || !$S['isanswered']) {
-                if (!($hideassigned && ($S['staff_id'] || $S['team_id']))) 
+                if (!($hideassigned && ($S['staff_id'] || $S['team_id']))) {
                     $stats['open'] += $S['count'];
+                    if ($S['status_id'] != 7) // 7 - warten auf Antwort
+                        $stats['openactive'] += $S['count'];
+                }
             }
             else {
                 $stats['answered'] += $S['count'];

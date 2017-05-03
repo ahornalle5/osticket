@@ -230,6 +230,24 @@ case 'open':
         'priority,due', 'due', 'priority,created', 'answered', 'number',
         'hot');
     break;
+case 'openactive':
+    $status='open';
+    $queue_name = $queue_name ?: 'openactive';
+    $results_type=__('Open active tickets');
+    if (!$cfg->showAnsweredTickets()) {
+        $tickets->filter(Q::all(array(
+                array('isanswered'=>0),
+                Q::not(array('status_id__in' => array('0' => 7)))
+                )));
+    } else {
+        $tickets->filter(
+                Q::not(array('status_id__in' => array('0' => 7)))
+                );
+    }
+    $queue_sort_options = array('priority,updated', 'updated',
+        'priority,due', 'due', 'priority,created', 'answered', 'number',
+        'hot');
+    break;
 }
 
 // Open queues _except_ assigned should respect showAssignedTickets()

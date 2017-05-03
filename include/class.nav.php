@@ -151,6 +151,12 @@ class StaffNav {
                 case 'tickets':
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'tickets.php','iconclass'=>'Ticket', 'droponly'=>true);
                     if($staff) {
+                        if(($openactive=$staff->getNumOpenActiveTickets()))
+                            $subnav[]=array('desc'=>__('Open active tickets')." ($openactive)",
+                                            'href'=>'tickets.php?status=openactive',
+                                            'iconclass'=>'openactiveTickets',
+                                            'droponly'=>true);
+
                         if(($assigned=$staff->getNumAssignedTickets()))
                             $subnav[]=array('desc'=>__('My&nbsp;Tickets')." ($assigned)",
                                             'href'=>'tickets.php?status=assigned',
