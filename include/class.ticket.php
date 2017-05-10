@@ -3759,7 +3759,7 @@ implements RestrictedAccess, Threadable {
             .'     (ifnull(T1.duedate, T1.est_duedate) is not null  '
             .'     and TIMEDIFF(NOW(), ifnull(T1.duedate, T1.est_duedate)) >= 0  '
             .'     and TIME_TO_SEC(TIMEDIFF(NOW(),T1.updated))>=5*24*3600) '
-            .' ); '
+            .' ) '
             .' ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
