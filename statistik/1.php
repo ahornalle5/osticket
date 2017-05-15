@@ -359,7 +359,7 @@ if(isset($_GET['not'])){
 echo "&not=1";
 }
 
-echo ".'>"
+echo ".'>";
 /*
 if(isset($_GET['ausb'])){
 echo "<td><a href='".$burl."?absenden=get&date=".$von."&date2=".$bis."&ausb=1&t=".$t."&h=".$h."&tab=2'>";
