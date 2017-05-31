@@ -1231,10 +1231,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
+                $user = User::lookupByEmail($thisstaff->getEmail());
+                $vars['user_id'] = $user->ht['id'];
                 if (($task=Task::create($vars, $errors)))
                     Http::response(201, $task->getId());
             }
-
+            
             $info['error'] = __('Error adding task - try again!');
         }
 
@@ -1245,7 +1247,7 @@ class TicketsAjaxAPI extends AjaxController {
                 __('Add New Task')
                 );
 
-         include STAFFINC_DIR . 'templates/task.tmpl.php';
+        include STAFFINC_DIR . 'templates/task.tmpl.php';
     }
 
     function task($tid, $id) {

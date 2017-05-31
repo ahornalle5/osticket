@@ -1314,6 +1314,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $form = AssignmentForm::instantiate(array('assignee' => $assigneeId));
 
+            $user = User::lookup($vars['user_id']);
+            $thread->addCollaborator($user, $vars, $_errors); 
             $task->assign($form, $_errors);
         }
 
