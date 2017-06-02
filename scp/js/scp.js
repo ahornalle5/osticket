@@ -1031,17 +1031,20 @@ $(document).on('pjax:start', function() {
 
 $(document).on('pjax:send', function(event) {
 
-    if ($('#loadingbar').length !== 0) {
-        $('#loadingbar').remove();
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if (!isIE) {
+        if ($('#loadingbar').length !== 0) {
+            $('#loadingbar').remove();
+        }
+
+        $("body").append("<div id='loadingbar'></div>");
+        $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
+
+        // right
+        $('#loadingbar').stop(false, true).width((50 + Math.random() * 30) + "%");
+        $('#overlay').css('background-color','white');
+        $.toggleOverlay(true);
     }
-
-    $("body").append("<div id='loadingbar'></div>");
-    $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
-
-    // right
-    $('#loadingbar').stop(false, true).width((50 + Math.random() * 30) + "%");
-    $('#overlay').css('background-color','white');
-    $.toggleOverlay(true);
 });
 
 $(document).on('pjax:complete', function() {
