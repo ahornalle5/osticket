@@ -450,8 +450,9 @@ class TS {
 				$sql = 'SELECT object_id, object_type FROM '.THREAD_TABLE.' WHERE id = '.db_input($vars['thread_id']);
 				$res=db_query($sql);
 				list($vars['object_id'], $vars['object_type'])=db_fetch_row($res);
-				
-				$created = (isset($vars['created']))?db_input($vars['created']):'NOW()';
+                                
+                                // $created = (isset($vars['created']))?db_input($vars['created']):'NOW()';
+				$created = 'NOW()';
 				$sql=' INSERT INTO '.TIMESHEET_TABLE.' SET '
 		           	.'  thread_id='.db_input($vars['thread_id'])
 		           	.' ,thread_entry_id='.db_input($vars['thread_entry_id'])
