@@ -691,7 +691,7 @@ $(function() {
                 .slideUp();
             }
         })
-        .done(function() { })
+        .done(function() { });
         .fail(function() { });
      });
     <?php
