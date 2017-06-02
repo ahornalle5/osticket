@@ -689,7 +689,8 @@ $(function() {
                 $('#msg_notice, #msg_error',$container)
                 .delay(5000)
                 .slideUp();
-            }
+                $.toggleOverlay(false);
+                $('#loading').css('display', 'none');            }
         })
         .done(function() { })
         .fail(function() { });
