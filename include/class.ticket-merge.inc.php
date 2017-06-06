@@ -48,7 +48,7 @@
 		}
 	
 		// create message ticket merged
-		$kTicketLink = '<a href="tickets.php?id='.$kTicket->getId().'" title="'.__('Ticket').' #'.$kTicket->getNumber().'">'.$kTicket->getNumber().'</a>';
+		$kTicketLink = '<a href="'.$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'].'?id='.$kTicket->getId().'" title="'.__('Ticket').' #'.$kTicket->getNumber().'">'.$kTicket->getNumber().'</a>';
 		$mTicketVars['staff_id'] = $thisstaff->getId();
 		$mTicketVars['poster'] = $thisstaff->getName();
 		$mTicketVars['note'] = sprintf(__('Merged with ticket #%s'), $kTicketLink);
