@@ -8,7 +8,7 @@
                         <?php
                          $sql = 'SELECT a.ticket_id, concat(a.number," | ",SUBSTRING(b.subject,1,125)) as label FROM `ost_ticket` as a  inner join ost_ticket__cdata '.
                                'as b on (a.ticket_id = b.ticket_id) inner join ost_user_email as c on (a.user_id = c.user_id) '.
-                               'where a.status_id in ( 1, 6, 7 )  and a.ticket_id <> '.$ticket->getId().' order by `created` desc ';
+                               'where a.status_id not in ( 2, 3, 4, 5 )  and a.ticket_id <> '.$ticket->getId().' order by `created` desc ';
                                
                          /*      
                         $sql = 'SELECT ticket_id, concat(ticketid,\": \",subject) AS label FROM ost_ticket WHERE email='.
