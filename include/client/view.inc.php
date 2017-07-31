@@ -70,6 +70,10 @@ if ($thisclient && $thisclient->isGuest()
                     <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
+                <tr>
+                    <th><?php echo __('Assignee');?>:</th>
+                    <td><?php echo Format::htmlchars($ticket instanceof Ticket ? $ticket->getAssignee() : ''); ?></td>
+                </tr>
            </table>
        </td>
        <td width="50%">
