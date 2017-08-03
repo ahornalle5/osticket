@@ -365,6 +365,14 @@ TS::getPTinputFieldJS();
                         ?>
                     </td>
                 </tr>
+                <tr>
+                    <th><?php echo __('Enduser\'s link'); ?>:</th>
+                    <td><?php
+                        $qstr['auth'] = $ticket->getAuthToken($user);
+                        echo '<a target="_blank" href="'.sprintf('%s/view.php?%s', $cfg->getBaseUrl(), Http::build_query($qstr, false)).'">'.$qstr['auth'].'</a>';
+                        ?>
+                    </td>
+                </tr>
             </table>
         </td>
     </tr>
@@ -948,9 +956,9 @@ if ($errors['err'] && isset($_POST['a'])) {
     <div class="clear"></div>
 </div>
 
-<!-- Fälligkeitsdatum -->
+<!-- Fï¿½lligkeitsdatum -->
 <?php include 'ticket-duedate.php'; ?>
-<!-- Fälligkeitsdatum Ende -->
+<!-- Fï¿½lligkeitsdatum Ende -->
 
 <script type="text/javascript">
 $(function() {
