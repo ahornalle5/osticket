@@ -21,7 +21,7 @@ if ($lang) {
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
-    <title><?php echo ($_SERVER['HTTP_HOST'] == 'ticketsystem' ? '' : 'TEST ').Format::htmlchars($title); ?></title>
+    <title><?php echo (($_SERVER['HTTP_HOST'] == 'ticketsystem' || $_SERVER['HTTP_HOST'] == 'hilfe') ? '' : 'TEST ').Format::htmlchars($title); ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
