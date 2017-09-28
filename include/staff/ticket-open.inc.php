@@ -24,7 +24,11 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
+
+
+TS::getPTinputFieldJS();
 ?>
+
 <form action="tickets.php?a=open" method="post" class="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
@@ -110,13 +114,66 @@ if ($_POST)
         <tr>
             <td width="160"><?php echo __('Ticket Notice'); ?>:</td>
             <td>
-            <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>><?php
+            <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>> <?php
                 echo __('Send alert to user.'); ?>
             </td>
         </tr>
         <?php
         } ?>
     </tbody>
+<!-- Anpassungen Beteiligte Einschub Anfang -->        
+    <tbody>
+        <tr>
+            <th colspan="2">
+                <em><strong><?php echo __('Collaborators');?></strong>:</em>
+            </th>
+        </tr>
+        <tr>
+            <td width="160" class="required"><?php echo __('Collaborators').' (CC)';?></td>
+            <td>
+                <?php 
+                $collab_uid_counter = 0;
+                if(isset($info['collab_uid']) && is_array($info['collab_uid']) && count($info['collab_uid']) > 0) {
+                    foreach ($info['collab_uid'] as $collab_uid) {
+                        if (intval($collab_uid)) {
+                            echo '<span style="display:inline-block; margin-bottom: 2px;">';
+                            echo ' <input type="hidden" name="collab_uid[]" value="'.$info['collab_uid'][$collab_uid_counter].'" />';
+                            echo ' <input type="text" size=45 name="collab_email[] class="collab_email"';
+                            echo '   autocomplete="off" autocorrect="off" value="'.$info['collab_email'][$collab_uid_counter].'" /> </span><br>';
+                        }
+                        $collab_uid_counter++;
+                    }
+               }
+                ?>
+                <span style="display:block; margin-bottom: 2px;">
+                    <input type="hidden" name="collab_uid[]" value="" />
+                    <input type="text" size=45 name="collab_email[]"  class="collab_email"
+                        autocomplete="off" autocorrect="off" value="" />
+                <?php if($collab_uid_counter >= 0) { ?>
+                    <span class='red button action-button'>
+                        <a data-toggle='tooltip' title='<?php echo __('Delete'); ?>' href='#' 
+                           onclick='deleteCollabField();'><i class='icon-trash'></i></a>
+                    </span>
+                <?php } ?>
+                </span>
+                <input type="button" value="<?php echo __('Add New Collaborator');?>"
+                       style="margin-left:0px;"
+                       class="action-button confirm-action" onclick="addCollabField();">                
+            </td>
+        </tr>
+        <?php
+        if($cfg->notifyONNewStaffTicket()) {  ?>
+        <tr>
+            <td width="160"><?php echo __('Ticket Notice'); ?>:</td>
+            <td>
+            <input type="checkbox" name="alertcollaborators" <?php echo (!$errors || $info['alertcollaborators'])? 'checked="checked"': ''; ?>> <?php
+                echo __('Send alert to collaborators.').' <em>'.__('Collaborators receive the same alert as the ticket owner.').'</em>'; ?>
+            </td>
+        </tr>
+        <?php
+        } ?>
+    </tbody>
+<!-- Anpassungen Beteiligte Einschub Ende -->
     <tbody>
         <tr>
             <th colspan="2">
@@ -402,6 +459,9 @@ print $response_form->getField('attachments')->render();
                 ?></textarea>
             </td>
         </tr>
+		   <?php
+		   TS::getPTinputFieldT();
+		   ?>
     </tbody>
 </table>
 <p style="text-align:center;">
@@ -463,6 +523,39 @@ $(function() {
 			$('<div id="msg_notice"><?php echo $callerDivValue; ?></div>').insertBefore("#user-search"); 
 		}, 1000);
 	<?php } ?>
+});
+<!-- Anpassungen Einschub Beteiligte Anfang -->
+var addCollabField = function() {
+    $(":focus").before("<span style='display:block; margin-bottom: 2px;'>\r                            <input type='hidden' name='collab_uid[]' value='' />\r                            <input type='text' size=45 name='collab_email[]' class='collab_email'\r                              autocomplete='off' autocorrect='off' value='' />                    <span class='red button action-button'><a data-toggle='tooltip' title='<?php echo __('Delete'); ?>' href='#' onclick='deleteCollabField();'><i class='icon-trash'></i></a></span></span>");
+    bindTypeaheadToCollabs();
+    $(".collab_email").last().focus();
+};
+var deleteCollabField = function() {
+    $(":focus").parent().parent().remove();
+    bindTypeaheadToCollabs();
+    $(".collab_email").last().focus();
+};
+var bindTypeaheadToCollabs = function () {
+    $('input.collab_email').typeahead({
+        source: function (typeahead, query) {
+            $.ajax({
+                url: "ajax.php/users?q="+query,
+                dataType: 'json',
+                success: function (data) {
+                    typeahead.process(data);
+                }
+            });
+        },
+        onselect: function (obj) {
+            $(":focus").prev().val(obj.id);
+            $(":focus").val(obj.name+' <'+obj.email+'>');
+        },
+        property: "/bin/true"
+    });
+};
+$( document ).ready(function() {
+    bindTypeaheadToCollabs();
+<!-- Anpassungen Einschub Beteiligte Ende -->
 });
 </script>
 

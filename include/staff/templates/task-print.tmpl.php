@@ -172,6 +172,13 @@ div.hr {
     <th><?php echo __('Collaborators'); ?></th>
     <td><?php echo $task->getParticipants(); ?></td>
 </tr>
+<tr>
+    <th><?php echo __('Time'); ?></th>
+    <td><?php echo TS::formatPT($task->thread->ht['timeTotal']).' ('.__('h/min').')'; ?></td>
+    <th>&nbsp;</th>
+    <td>&nbsp;</td>
+</tr>
+
 </tbody>
 </table>
 <!-- Custom Data -->

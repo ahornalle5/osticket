@@ -155,6 +155,12 @@ div.hr {
     <th><?php echo __('Source'); ?></th>
     <td><?php echo $ticket->getSource(); ?></td>
 </tr>
+<tr>
+    <th><?php echo __('Time'); ?></th>
+    <td><?php echo TS::formatPT($ticket->thread->ht['timeTotal']).' ('.__('h/min').')'; ?></td>
+    <th>&nbsp;</th>
+    <td>&nbsp;</td>
+</tr>
 </tbody>
 <tbody>
     <tr><td colspan="4" class="spacer">&nbsp;</td></tr>

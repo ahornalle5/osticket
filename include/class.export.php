@@ -59,7 +59,7 @@ class Export {
         // Reset the $sql query
         $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',
-                'team', 'staff', 'cdata', 'topic', 'status', 'cdata__:priority')
+                'team', 'staff', 'cdata', 'topic', 'status', 'cdata__:priority', 'thread__timeTotal')
             ->options(QuerySet::OPT_NOCACHE)
             ->annotate(array(
                 'collab_count' => TicketThread::objects()
@@ -84,6 +84,7 @@ class Export {
             array(
                 'number' =>         __('Ticket Number'),
                 'created' =>        __('Date Created'),
+                'thread.timeTotal::formatTime' =>__('Time'),
                 'cdata.subject' =>  __('Subject'),
                 'user.name' =>      __('From'),
                 'user.default_email.address' => __('From Email'),
@@ -102,6 +103,9 @@ class Export {
                 'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
+			array()
+			/* empty this array will deactivate this function because it destroy output - dirty, but it works
+			see https://github.com/osTicket/osTicket/issues/3264
             array('modify' => function(&$record, $keys) use ($fields) {
                 foreach ($fields as $k=>$f) {
                     if (($i = array_search($k, $keys)) !== false) {
@@ -109,7 +113,7 @@ class Export {
                     }
                 }
                 return $record;
-            })
+            }) */
             );
     }
 
@@ -146,6 +150,7 @@ class Export {
             array(
                 'number' =>         __('Task Number'),
                 'created' =>        __('Date Created'),
+                'thread.timeTotal::formatTime' =>  __('Time'),
                 'cdata.title' =>    __('Title'),
                 'dept::getLocalName' => __('Department'),
                 '::getStatus' =>    __('Current Status'),
@@ -273,6 +278,7 @@ class ResultSetExporter {
 
         $this->headers = array();
         $this->keys = array();
+		$TSheaders = $TSkeys = array();
         foreach ($headers as $field=>$name) {
             $this->headers[] = $name;
             $this->keys[] = $field;
@@ -310,6 +316,10 @@ class ResultSetExporter {
             if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
+			elseif($func && $func == 'formatTime') {
+                require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
+				$current = TS::formatPT($current);
+			}
             $record[] = (string) $current;
         }
 

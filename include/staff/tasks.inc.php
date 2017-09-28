@@ -47,7 +47,7 @@ $queue_columns = array(
         'time' => array(// Anpassung timesheet
             'width' => '7%',
             'heading' => __('Time'),
-            'sort_col' => 'time',
+            'sort_col' => 'thread__timeTotal',
             ),
         'title' => array(
             'width' => '38%',
@@ -173,7 +173,7 @@ $tasks->annotate(array(
     ),
 ));
 
-$tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
+$tasks->values('id', 'number', 'created', 'staff_id', 'team_id', 'thread__timeTotal', 'thread__id',
         'staff__firstname', 'staff__lastname', 'team__name',
         'dept__name', 'cdata__title', 'flags');
 // Apply requested quick filter
@@ -200,10 +200,10 @@ case 'number':
         )
     ));
     break;
-case 'time':
+case 'thread__timeTotal':
     $queue_columns['time']['heading'] = __('Time');
-    $queue_columns['time']['sort'] = 'due';
-    $queue_columns['time']['sort_col'] = $date_col = 'est_duedate';
+    $queue_columns['time']['sort'] = 'time';
+    $queue_columns['time']['sort_col'] = $date_col = 'thread__timeTotal';
 case 'trafficlights':// Anpassung Fälligkeitsampel
     $queue_columns['trafficlights']['heading'] = ($sort_dir)?'<img src="./images/dot_red15x15.png" alt="">':'<img src="./images/dot_green15x15.png" alt="">';
     $queue_columns['trafficlights']['sort'] = 'trafficlights';
@@ -373,12 +373,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             $qstr = Http::build_query($args);
             // Show headers
             foreach ($queue_columns as $k => $column) {
-                if($k == 'time')
-                    echo sprintf( '<th width="%s">%s</th>',
-                        $column['width'],
-                        $column['heading']);
-                else
-                	echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
+                echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
                         class="%s">%s</a></th>',
                         $column['width'],
                         $column['sort'] ?: $k,
@@ -488,7 +483,12 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                 <td align="center">
                 <?php 
 				require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
-				echo TS::formatPT(TS::getPTtotalByObjectId($T['id'], 'A'));
+				if($T['thread__timeTotal'] == NULL) {
+					TS::updateTimeTotal($T['thread__id']);
+					echo TS::formatPT(TS::getPTtotalByObjectId($T['id'], 'A'));
+				}
+				else
+					echo TS::formatPT($T['thread__timeTotal']);
 				?>
                 </td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>

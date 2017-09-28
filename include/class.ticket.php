@@ -490,9 +490,27 @@ implements RestrictedAccess, Threadable {
     }
 
     function getSLADueDate() {
-        if ($sla = $this->getSLA()) {
-            $dt = new DateTime($this->getCreateDate());
+        global $cfg;
 
+        if ($sla = $this->getSLA()) {
+// Anpassung: due date errechnet sich nicht vom create date sondern von der letzten
+// Mitteilung -> create date ist aber Fallback falls keine Mitteilung vorhanden
+            if($cfg->get('sla_from_last_message') && $this->getLastMessageDate()) {
+                if(is_object($this->getLastMessageDate()))
+                    $this->save(true);
+                $dt = new DateTime($this->getLastMessageDate());
+            } else
+// Anpassung Ende
+            $dt = new DateTime($this->getCreateDate());
+// Anpassung: reopenDate überschreibt Datum, wenn jünger. Wenn reopen -> SLA soll neu starten
+            if($this->getReopenDate()) {
+                if(is_object($this->getReopenDate()))
+                    $this->save(true);
+                $rt = new DateTime($this->getReopenDate());
+                if($rt > $dt)
+                    $dt = $rt;
+            }
+// Anpassung Ende
             return $dt
                 ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
                 ->format('Y-m-d H:i:s');
@@ -1229,6 +1247,9 @@ implements RestrictedAccess, Threadable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
                     };
+// Anpassung: Update DueDate on reopen
+                    $this->updateEstDueDate();
+// Anpassung: Update DueDate on reopen
                 }
 
                 // If the ticket is not open then clear answered flag
@@ -1576,6 +1597,12 @@ implements RestrictedAccess, Threadable {
 
         $this->isanswered = 0;
         $this->lastupdate = SqlFunction::NOW();
+// Anpassung due date erst ab last message...
+        if($cfg->get('sla_from_last_message'))
+            $this->updateEstDueDate();
+        if($cfg->get('overdue_only_unanswered'))
+            $this->clearOverdue();
+// Anpassung Ende
         $this->save();
 
 
@@ -2644,7 +2671,7 @@ implements RestrictedAccess, Threadable {
     }
 
     //Insert Internal Notes
-    function logNote($title, $note, $poster='SYSTEM', $alert=true) {
+    function logNote($title, $note, $poster='SYSTEM', $alert=true, $TStime=0, $TStimeTypeID=1) {
         // Unless specified otherwise, assume HTML
         if ($note && is_string($note))
             $note = new HtmlThreadEntryBody($note);
@@ -2654,6 +2681,8 @@ implements RestrictedAccess, Threadable {
             array(
                 'title' => $title,
                 'note' => $note,
+				'ptHiddenFieldValue' => $TStime,
+				'processingTime_type_id' => $TStimeTypeID,
             ),
             $errors,
             $poster,
@@ -3135,6 +3164,10 @@ implements RestrictedAccess, Threadable {
             $alertstaff=true) {
         global $ost, $cfg, $thisclient, $thisstaff;
 
+// Anpassung: message not required by response
+        if($vars['message'] == '' && strlen($vars['response']) > 6)
+            $vars['message'] = 'noMessage';
+// Anpassung Ende: message not required by response
         // Don't enforce form validation for email
         $field_filter = function($type) use ($origin) {
             return function($f) use ($origin, $type) {
@@ -3477,7 +3510,22 @@ implements RestrictedAccess, Threadable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
-        // Add organizational collaborators
+// Anpassung: Add Collaborators from Ticket create form
+        $collabsToNotify = array();
+        if(isset($vars['collab_uid']) && is_array($vars['collab_uid'])) {
+            $settings = array('isactive' => true);
+            foreach ($vars['collab_uid'] as $ac) {
+                if (intval($ac) == $ac) {
+                    $addCollab = USER::lookup($ac);
+                    if ($c = $ticket->addCollaborator($addCollab, $settings, $errors)) {
+                        $collabsToNotify[] = $addCollab;
+                    }
+                }
+            }
+        }
+// Anpassung Ende:  Add Collaborators from Ticket create form
+
+       // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
             $pris = $org->autoAddPrimaryContactsAsCollabs();
             $members = $org->autoAddMembersAsCollabs();
@@ -3499,6 +3547,10 @@ implements RestrictedAccess, Threadable {
         //post the message.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
+// Anpassung: message not required by response
+        if($vars['message'] == 'noMessage')
+            $vars['message'] = '';
+// Anpassung Ende: message not required by response
         $message = $ticket->postMessage($vars , $origin, false);
 
         // If a message was posted, flag it as the orignal message. This
@@ -3663,7 +3715,14 @@ implements RestrictedAccess, Threadable {
             if (!$cfg->isRichTextEnabled()) {
                 $vars['note'] = new TextThreadEntryBody($vars['note']);
             }
-            $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
+			// Timesheet: Zeit speichern, sofern es keine Antwort gibt oder Antwort ohne Berechtigung
+			$TStime = $vars['ptHiddenFieldValue'];
+			$TStimeTypeID = $vars['ptInputFieldType'];
+			if($vars['response'] && $role->hasPerm(TicketModel::PERM_REPLY)) {
+				$TStime = 0;
+				$TStimeTypeID = 1;
+			}
+            $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false, $TStime, $TStimeTypeID);
         }
 
         if (!$cfg->notifyONNewStaffTicket()
@@ -3679,7 +3738,8 @@ implements RestrictedAccess, Threadable {
         ) {
             $message = (string) $ticket->getLastMessage();
             if ($response) {
-                $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
+                if($message != '') // Anpassung: message not requiered by response
+                    $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();
             }
 
@@ -3706,14 +3766,23 @@ implements RestrictedAccess, Threadable {
             $options = array(
                 'thread' => $message ?: $ticket->getThread(),
             );
+// Anpassung: send email to ticket owner and collaborators if enabled
+            if($vars['alertcollaborators']) {
+                $recipients = $ticket->getRecipients();
+                foreach ($recipients as $recipient) {
+                    $email->send($recipient, $msg['subj'], $msg['body'], $attachments,
+                        $options);
+                }
+            } else 
+// Anpassung: send email to ticket owner and collaborators
             $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
         return $ticket;
     }
 
-
     static function checkOverdue() {
+        global $cfg;
         /*
         $overdue = static::objects()
             ->filter(array(
@@ -3726,13 +3795,27 @@ implements RestrictedAccess, Threadable {
          Punt for now
          */
 
+// Anpassung: isoverdue nur, wenn Ticket nicht beantwortet ist und Zeit ab letzter Mitteilung bzw created/reopended SLA überschreitet
+// Wenn Fälligkeit gesetzt, ist dieses Datum entscheidend
+// -> sql-Abfrage angepasst
+        $sql_isanswered = '';
+        if($cfg->get('sla_from_last_message')) {
+            $sql_lm_c = 'IFNULL(T3.lastmessage, T1.created)';
+            $sql_lm_r = 'IFNULL(T3.lastmessage, reopened)';
+        } else {
+            $sql_lm_c = 'T1.created';
+            $sql_lm_r = 'reopened';
+        }
+        if($cfg->get('overdue_only_unanswered'))
+            $sql_isanswered = '';
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
                 ON (status.id=T1.status_id AND status.state="open") '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '
+            .' LEFT JOIN '.THREAD_TABLE.' T3 ON (T3.object_id=T1.ticket_id AND T3.object_type="T") '
             .' WHERE isoverdue=0 AND T1.status_id != 7'
-            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
-            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' AND (('.$sql_isanswered.'reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),'.$sql_lm_c.'))>=T2.grace_period*3600) '
+            .' OR ('.$sql_isanswered.'reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),'.$sql_lm_r.'))>=T2.grace_period*3600) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
             .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
 

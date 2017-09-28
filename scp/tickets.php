@@ -58,6 +58,11 @@ if (!$ticket) {
             && $queue_name)
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
+else {
+	// gibt es eine Ticket-ID -> Gesamtzeit im Ticket-Objekt speichern
+	// $ticket->timeTotal = TS::getPTtotalByObjectId($ticket->getId(), 'T');
+	// var_dump($ticket);
+}
 
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
@@ -174,6 +179,11 @@ if($_POST && !$errors):
                                 $ticket->getId(), $ticket->getNumber()))
                         );
 
+//<!-- Anpassung Einschub Anfang -->
+                // Anpassung - Ticket nicht als beantwortet markieren
+                if($vars['markNotAnswered'])
+                    $ticket->markUnAnswered();
+//<!-- Anpassung Einschub Ende -->
                 // Clear attachment list
                 $response_form->setSource(array());
                 $response_form->getField('attachments')->reset();
@@ -459,6 +469,7 @@ if($cfg->showAnsweredTickets()) {
 }
 
 if($stats['assigned']) {
+
     $nav->addSubMenu(array('desc'=>__('My Tickets').' ('.number_format($stats['assigned']).')',
                            'title'=>__('Assigned Tickets'),
                            'href'=>'tickets.php?status=assigned',

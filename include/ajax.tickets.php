@@ -1191,6 +1191,16 @@ class TicketsAjaxAPI extends AjaxController {
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
     }
 
+    function attachmentList($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, __('Unknown ticket'));
+
+         include STAFFINC_DIR . 'ticket-attachmentlist.inc.php';
+    }
+
     function addTask($tid) {
         global $thisstaff;
 
@@ -1236,7 +1246,7 @@ class TicketsAjaxAPI extends AjaxController {
                 if (($task=Task::create($vars, $errors)))
                     Http::response(201, $task->getId());
             }
-            
+
             $info['error'] = __('Error adding task - try again!');
         }
 
@@ -1247,7 +1257,7 @@ class TicketsAjaxAPI extends AjaxController {
                 __('Add New Task')
                 );
 
-        include STAFFINC_DIR . 'templates/task.tmpl.php';
+         include STAFFINC_DIR . 'templates/task.tmpl.php';
     }
 
     function task($tid, $id) {

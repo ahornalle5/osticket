@@ -30,6 +30,8 @@ $sort_options = array(
     'closed' =>             __('Most Recently Closed'),
     'hot' =>                __('Longest Thread'),
     'relevance' =>          __('Relevance'),
+    'time' =>               __('Time'),
+    'trafficlights' =>      __('Due Date'),
 );
 
 // Queues columns
@@ -53,7 +55,7 @@ $queue_columns = array(
         'time' => array(// Anpassung timesheet
             'width' => '1%',
             'heading' => __('Time'),
-            'sort_col' => 'time',
+            'sort_col' => 'thread__timeTotal',
             ),
         // */
         'subject' => array(
@@ -106,14 +108,16 @@ case 'closed':
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
     $queue_sort_options = array('closed', 'priority,due', 'due',
-        'priority,updated', 'priority,created', 'answered', 'number', 'hot');
+        'priority,updated', 'priority,created', 'answered', 'number', 'hot',
+        'time', 'trafficlights');
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tickets');
     $tickets->filter(array('isoverdue'=>1));
     $queue_sort_options = array('priority,due', 'due', 'priority,updated',
-        'updated', 'answered', 'priority,created', 'number', 'hot');
+        'updated', 'answered', 'priority,created', 'number', 'hot', 'time',
+        'trafficlights');
     break;
 case 'active':
     $status='open';
@@ -139,7 +143,7 @@ case 'assigned':
     )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
-        'hot');
+        'hot', 'time', 'trafficlights');
     break;
 case 'answered':
     $status='open';
@@ -147,13 +151,14 @@ case 'answered':
     $results_type=__('Answered Tickets');
     $tickets->filter(array('isanswered'=>1));
     $queue_sort_options = array('answered', 'priority,updated', 'updated',
-        'priority,created', 'priority,due', 'due', 'number', 'hot');
+        'priority,created', 'priority,due', 'due', 'number', 'hot',
+        'time', 'trafficlights');
     break;
 default:
 case 'search':
     $queue_sort_options = array('priority,updated', 'priority,created',
         'priority,due', 'due', 'updated', 'answered',
-        'closed', 'number', 'hot');
+        'closed', 'number', 'hot', 'time', 'trafficlights');
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
@@ -228,7 +233,7 @@ case 'open':
         $tickets->filter(array('isanswered'=>0));
     $queue_sort_options = array('priority,updated', 'updated',
         'priority,due', 'due', 'priority,created', 'answered', 'number',
-        'hot');
+        'hot', 'time', 'trafficlights');
     break;
 case 'openactive':
     $status='open';
@@ -322,12 +327,13 @@ if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-    $_SESSION[$queue_sort_key] = array($queue_sort_options[6], 0);
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
 }
 
 list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
 $orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
 $orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+
 
 switch ($sort_cols) {
 case 'number':
@@ -352,6 +358,7 @@ case 'created':
 case 'priority,due':
     $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
+    break;
 case 'time':
     $queue_columns['time']['heading'] = __('Time');
     $queue_columns['time']['sort'] = 'due';
@@ -429,6 +436,8 @@ case 'updated':
 $tickets->values('sla');
 $tickets->values('duedate');
 $tickets->values('est_duedate');
+// Anpassung Timesheet
+$tickets->values('thread__timeTotal');
 
 // Anpassung Faelligkeitsampel Ende
 
@@ -635,7 +644,7 @@ return false;">
                     if($ids && in_array($T['ticket_id'], $ids))
                         $sel=true;
                     ?>
-                <td align="center" class="nohover" style="width: 2%">
+                <td align="center" class="nohover">
                     <input class="ckb" type="checkbox" name="tids[]"
                         value="<?php echo $T['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
@@ -686,15 +695,19 @@ return false;">
 				}
                 ?>
                 <!-- Anpassung Faelligkeitsampel Ende -->
-                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
-                <!-- <td align="center">
+                <td align="center">
                 <?php 
 				require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
-				echo TS::formatPT(TS::getPTtotalByObjectId($T['ticket_id'], 'T'));
+				if($T['thread__timeTotal'] == NULL) {
+					TS::updateTimeTotal($T['thread__id']);
+					echo TS::formatPT(TS::getPTtotalByObjectId($T['ticket_id'], 'T'));
+				}
+				else
+					echo TS::formatPT($T['thread__timeTotal']);
 				?>
-                </td> -->
+                </td> 
                 <td><div style="max-width: <?php
-                    $base = 650;
+                    $base = 279;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
                     // Assume about 8px per digit character

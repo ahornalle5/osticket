@@ -100,11 +100,7 @@ class OverviewReport {
             .' ORDER BY 2, 1');
         # Initialize array of plot values
         $plots = array();
-        foreach ($events as $k=>$e) { 
-			$plots[$e] = array();
-			#$plots[__($e)] = array(); 
-			#$events[$k] = __($e);
-		}
+        foreach ($events as $e) { $plots[$e] = array(); }
 
         $time = null; $times = array();
         # Iterate over result set, adding zeros for missing ticket events
@@ -129,7 +125,7 @@ class OverviewReport {
         }
         foreach (array_diff($events, $slots) as $slot)
             $plots[$slot][] = 0;
-		
+
         return array("times" => $times, "plots" => $plots, "events" => $events);
     }
 

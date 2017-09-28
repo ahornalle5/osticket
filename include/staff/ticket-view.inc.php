@@ -1,8 +1,3 @@
-
-<head>
-<meta content="de" http-equiv="Content-Language">
-</head>
-
 <?php
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
@@ -495,10 +490,27 @@ echo $v;
 
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
+// Anpassung: Reiter Dateianhänge
+$acount = 0;
+$aEntries = $ticket->getThreadEntries();
+foreach ($aEntries as $aEntry) {
+    foreach ($aEntry->attachments as $att ) {
+            if ($att->inline) continue;
+            $acount++;
+            $size = '';
+        }
+}
+// Anpassung Ende: Reiter Dateianhänge
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
         echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+<!-- Anpassung: Reiter Dateianhänge -->
+    <li><a id="ticket-attachmentList-tab" href="#attachmentList"
+            data-url="<?php
+        echo sprintf('#tickets/%d/attachmentList', $ticket->getId()); ?>"><?php
+        echo sprintf(__('Attachments'.' (%d)'), $acount);?></a></li>
+<!-- Anpassung: Reiter Dateianhänge -->
     <li><a id="ticket-tasks-tab" href="#tasks"
             data-url="<?php
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
@@ -638,6 +650,16 @@ if ($errors['err'] && isset($_POST['a'])) {
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
             <?php
             }?>
+            <!-- Anpassung Einschub Wiedervorlage -->
+             <tr>
+                <td width="120">
+                    <label><strong>Wiedervorlage:</strong></label>
+                </td>
+               <td>
+                    <input type='checkbox' value='1' name="markNotAnswered" id="markNotAnswered" />
+&nbsp;(Das Ticket wird nicht als beantwortet markiert)</td>
+             </tr>
+            <!-- Anpassung Wiedervorlage Ende -->
             <tr>
                 <td width="120" style="vertical-align:top">
                     <label><strong><?php echo __('Response');?>:</strong></label>
@@ -849,8 +871,8 @@ if ($errors['err'] && isset($_POST['a'])) {
         <!-- merge form -->
         <?php
         if ($role->hasPerm(TicketModel::PERM_EDIT)) {
-            include 'ticket-merge.php';
-            // include 'ticket-view.inc-mergeForm.php';
+			include 'ticket-merge.php'; // MC: previously working value
+			include(STAFFINC_DIR.'ticket-view.inc-mergeForm.php');
         } ?>
         <!-- merge form -->
  </div>

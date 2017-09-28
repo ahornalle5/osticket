@@ -17,20 +17,22 @@
 class TS {
 	
 	var $version;
-	var $latestVersion = 'ts1.10-1';
+	var $latestVersion = 'ts1.10-2';
 	
 	function __construct() {
 		global $cfg, $errors, $msg;
 		$this->version = $cfg->getTimesheetVersion();
 		
-		if(!$this->version) {// prüfen, ob timesheet installiert ist...
+		// prüfen, ob timesheet installiert ist...
+		if(!$this->version) {
 			$install = self::install();
 			if($install !== TRUE)
 				$errors['err'] = $install;
 			else
 				$msg .= sprintf(__('Timesheet module installed successfully. Current Version is: %s'), $this->version);
 		}
-		elseif($this->version != $this->latestVersion) {// prüfen, ob die installierte Version aktuell ist...
+		// prüfen, ob die installierte Version aktuell ist...
+		if($this->version != $this->latestVersion) {
 			$update = self::update();
 			if($update !== TRUE)
 				$errors['err'] = $update;
@@ -54,6 +56,7 @@ class TS {
 	}
 	
 	function install() {
+		$this->version = 'ts1.10-1';
 		$sql1 = "
 			CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."timesheet` (
 			`id` int(11) unsigned NOT NULL auto_increment,
@@ -71,18 +74,20 @@ class TS {
 			KEY `thread_entry_id` (`thread_entry_id`)
 			) DEFAULT CHARSET=utf8;
 		";
+		
 		if(db_query($sql1)) {
 			$sql2 = 'INSERT INTO '.CONFIG_TABLE
 	            .' SET `namespace`="core"'
 	            .', `key`="timesheet_version"'
-	            .', value='.db_input($this->latestVersion);
-	        if(db_query($sql2) && $this->version = $this->latestVersion)
+	            .', value='.db_input($this->version);
+			$updateVID = db_query($sql2);
+	        if($updateVID)
             	return TRUE;
 			else
-				return sprintf(__('Timesheet module installed successfully - but config table entry couldn\'t updated. Data with key="timesheetInstalled" should be "%s"'), $this->latestVersion);
+				return sprintf(__('Timesheet module installed successfully - but config table entry couldn\'t updated. Data with key="timesheetInstalled" should be "%s"'), $this->version);
 		}
 		else
-			return __('Can\'t install timesheet module').' - '.$this->latestVersion;
+			return __('Can\'t install timesheet module').' - '.$this->version;
 	}
 	
 	function update() {
@@ -152,8 +157,25 @@ class TS {
 				else
 					return sprintf(__('Error: can\'t create new Table for timesheet module (%s) - Update from version %s'), $this->latestVersion, $this->version);
 				
-				break;
 			case 'ts1.10-1':
+				// Create new field timeTotal in thread table
+				$sql = 'ALTER TABLE `'.THREAD_TABLE.'` ADD `timeTotal` INT NULL DEFAULT NULL AFTER `object_type` ';
+				if(db_query($sql)) {
+					$this->version = 'ts1.10-2';
+					self::updateVersion();
+					
+					// update new Field...
+					$sql = 'SELECT id FROM `'.THREAD_TABLE.'` WHERE timeTotal IS NULL LIMIT 100';
+					while(($rows=db_query($sql)) && db_num_rows($rows) > 0) {
+						list($thread_id)=db_fetch_row($rows);
+						
+						self::updateTimeTotal($thread_id);
+					}
+				}
+				else
+					return __('Error: can\'t create new Field `timeTotal` in tread table');
+				
+			case 'ts1.10-2':
 				// nothing to do, we are on latest version
 				break;
 			default:
@@ -354,10 +376,25 @@ class TS {
 		';
 	}
 	
+	function updateTimeTotal($thread_id = 0) {
+		$thread_id = intval($thread_id);
+		// update timeTotal field in thread table //
+		$sql = 'SELECT timeTotal FROM `'.THREAD_TABLE.'` WHERE id = '.db_input($thread_id);
+		if(($res=db_query($sql)) && db_num_rows($res)) {
+			//Update field, if exists
+			$newTime = self::getPTtotal($thread_id);
+			$sql = 'UPDATE `'.THREAD_TABLE.'` SET `timeTotal` = '.db_input($newTime).' WHERE `id` = '.db_input($thread_id);
+			if($res=db_query($sql))
+				return TRUE;
+			else return FALSE;
+		} else return FALSE;
+	}
+	
 	function getPTtotal($thread_id = 0) {
+		$thread_id = intval($thread_id);
 		$sql = 'SELECT SUM(processingTime) AS processingTime '
 				.'FROM `'.TIMESHEET_TABLE.'` '
-				.'WHERE thread_id = '.$thread_id.' '
+				.'WHERE thread_id = '.db_input($thread_id).' '
 				.'GROUP BY thread_id';
 		
         $processingTime=0;
@@ -450,9 +487,15 @@ class TS {
 				$sql = 'SELECT object_id, object_type FROM '.THREAD_TABLE.' WHERE id = '.db_input($vars['thread_id']);
 				$res=db_query($sql);
 				list($vars['object_id'], $vars['object_type'])=db_fetch_row($res);
-                                
-                                // $created = (isset($vars['created']))?db_input($vars['created']):'NOW()';
-				$created = 'NOW()';
+				
+				// $created = (isset($vars['created']))?db_input($vars['created']):'NOW()';
+				// $created = 'NOW()'; // dirty hack from mc, used to be workin before v1.10
+				if(isset($vars['created']))
+                                    $vars['created'] = date_create(serialize($vars['created']));
+                                if(!isset($vars['created']) || !$vars['created'])
+                                    $vars['created'] = date_create();
+                                $vars['created'] = date_format($vars['created'], 'Y-m-d H:i:s');
+				$created = ($vars['created'])?db_input($vars['created']):'NOW()';
 				$sql=' INSERT INTO '.TIMESHEET_TABLE.' SET '
 		           	.'  thread_id='.db_input($vars['thread_id'])
 		           	.' ,thread_entry_id='.db_input($vars['thread_entry_id'])
@@ -460,13 +503,14 @@ class TS {
 		           	.' ,object_type='.db_input($vars['object_type'])
 		           	.' ,staff_id='.db_input($vars['staff_id'])
 		           	.' ,processingTime='.db_input($vars['processingTime'])
-                    .' ,processingTime_type_id='.db_input($vars['processingTime'])
-                    //.' ,settled='.db_input($vars['staffId'])
+		           	.' ,processingTime_type_id=1' //.db_input($vars['processingTime_type_id'])// Abrechnungsart - bisher ungenutzt
+		           	//.' ,settled='.db_input(0) // abgerechnet? - bisher ungenutzt
 		           	.' ,created='.$created
 					;
 				if(!db_query($sql))
 					return false;
 				
+				self::updateTimeTotal($vars['thread_id']);
 				return true;
 			}
 		}

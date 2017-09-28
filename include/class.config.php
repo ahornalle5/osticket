@@ -203,7 +203,7 @@ class OsticketConfig extends Config {
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
-        'system_language' =>    'en_US',
+        'system_language' =>    'de',
         'default_storage_bk' => 'D',
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
@@ -220,6 +220,8 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'sla_from_last_message' => 0,
+        'overdue_only_unanswered' => 0,
     );
 
     function __construct($section=null) {
@@ -1274,6 +1276,8 @@ class OsticketConfig extends Config {
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
+            'sla_from_last_message'=>isset($vars['sla_from_last_message'])?1:0,
+            'overdue_only_unanswered'=>isset($vars['overdue_only_unanswered'])?1:0,
             'max_open_tickets'=>$vars['max_open_tickets'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,

@@ -60,8 +60,35 @@ $extensions = array(
 <tbody>
     <tr><td><?php echo __('osTicket Version'); ?></td>
         <td><span class="ltr"><?php
-            echo sprintf("%s (%s)", THIS_VERSION, trim($commit)); ?></span>
+            echo sprintf("%s (%s)", THIS_VERSION, trim($commit)).' / '.__('Patch').'-'.DE_VERSION.' — '.__('German Version'); ?></span>
 <?php
+$latestDEversion = file_get_contents('https://osticket.com.de/ostVersion.txt');
+$lv = explode("p", $latestDEversion);
+$cv[0] = MAJOR_VERSION;
+$cv[1] = DE_VERSION;
+$getNewVersion = 0;
+if($cv[0] != $lv[0])
+    $getNewVersion = 1; // note a new version
+elseif($cv[1] != $lv[1])
+    $getNewVersion = 2; // note a new patch
+if (!$getNewVersion) { ?>
+    — <span style="color:green"><i class="icon-check"></i> <?php echo __('Up to date'); ?></span>
+<?php
+}
+else {
+?>
+      <a class="green button action-button pull-right"
+         href="https://osticket.com.de/downloads.php?u=1<?php echo ($getNewVersion == 1)?'#newVersion':'#patch'; ?>"><i class="icon-rocket"></i>
+        <?php echo __('Upgrade'); ?></a>
+<?php if ($lv[0] && $lv[1]) { 
+    $lvNote = ($getNewVersion == 1)?'v'.$lv[0]:'Patch '.$lv[1];
+?>
+      <strong> — <?php echo str_replace(
+          '%s', $lvNote, __("%s is available")
+      ); ?></strong>
+<?php }
+}
+/*
 $lv = $ost->getLatestVersion('core', MAJOR_VERSION);
 $tv = THIS_VERSION;
 $gv = GIT_VERSION == '$git' ? substr(@`git rev-parse HEAD`, 0, 7) : false ?: GIT_VERSION;

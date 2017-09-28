@@ -154,7 +154,8 @@ echo '</div>'; // ticket preview content.
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
 if($ticket->getNumNotes())
-    $options[]=array('action'=>sprintf(__('Notes (%d)'),$ticket->getNumNotes()),'url'=>"tickets.php?id=$tid#notes");
+    $options[]=array('action'=>sprintf(__('Notes (%d)'),$ticket->getNumNotes()),'url'=>"#");
+    #$options[]=array('action'=>sprintf(__('Notes (%d)'),$ticket->getNumNotes()),'url'=>"tickets.php?id=$tid#notes");
 
 if($ticket->isOpen())
     $options[]=array('action'=>__('Reply'),'url'=>"tickets.php?id=$tid#reply");
@@ -168,7 +169,7 @@ if ($role->hasPerm(TicketModel::PERM_TRANSFER))
 $options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
 if ($role->hasPerm(TicketModel::PERM_EDIT))
-    $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
+    $options[]=array('action'=>__('Edit'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
     echo '<ul class="tip_menu">';

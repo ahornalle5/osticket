@@ -1066,7 +1066,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
         $this->notes = Format::sanitize($vars['notes']);
-		$this->default_paper_size = isset($vars['default_paper_size'])?$vars['default_paper_size']:'A4';
+        $this->default_paper_size = isset($vars['default_paper_size'])?$vars['default_paper_size']:'A4';
 
         if ($errors)
             return false;

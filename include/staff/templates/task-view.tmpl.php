@@ -690,7 +690,8 @@ $(function() {
                 .delay(5000)
                 .slideUp();
                 $.toggleOverlay(false);
-                $('#loading').css('display', 'none');            }
+                $('#loading').css('display', 'none');            
+            }
         })
         .done(function() { })
         .fail(function() { });
