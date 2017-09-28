@@ -24,7 +24,15 @@ require(CLIENTINC_DIR.'header.inc.php');
 <?php include CLIENTINC_DIR.'templates/sidebar.tmpl.php'; ?>
 <div class="main-content">
 <?php
-if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
+include ('kb/umwelt.php');
+
+if ($cfg && $cfg->isKnowledgebaseEnabled()) { 
+
+
+?>
+
+
+<h2>Suchfunktion</h2>
 <div class="search-form">
     <form method="get" action="kb/faq.php">
     <input type="hidden" name="a" value="search"/>

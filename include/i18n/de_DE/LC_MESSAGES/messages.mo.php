@@ -3000,6 +3000,8 @@ verwendet werden, um Sequenzen für unterschiedliche Zwecke zu erzeugen.',
   'Open active tickets' => 'Offene aktive Tickets',
   'All open tickets not waiting for answer' => 'Alle offene Tickets, die auf keine Antwort warten',
   'Enduser\'s link' => 'Kundenlink',
+  'Search our knowledge base' => 'Wissensdatenbank durchsuchen',
+  'Featured Questions' => 'Meistgesuchte Fragen',
 
   0 => 
   array (

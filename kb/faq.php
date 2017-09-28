@@ -31,6 +31,9 @@ if($faq && $faq->isPublished()) {
     $inc='faq-category.inc.php';
 }
 require_once(CLIENTINC_DIR.'header.inc.php');
+
+include ('umwelt.php');
+
 require_once(CLIENTINC_DIR.$inc);
 require_once(CLIENTINC_DIR.'footer.inc.php');
 ?>

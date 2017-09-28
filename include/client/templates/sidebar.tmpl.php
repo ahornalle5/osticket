@@ -8,7 +8,11 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
 <?php
     if ($cfg->getClientRegistrationMode() != 'disabled'
         || !$cfg->isClientLoginRequired()) { ?>
-            <a href="open.php" style="display:block" class="blue button"><?php
+        <a href="
+        <?php
+        include('open.ticket.mailto.php');
+        ?>
+        " style="display:block" class="blue button"><?php
                 echo __('Open a New Ticket');?></a>
 </p>
 <?php } ?>

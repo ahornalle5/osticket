@@ -10,6 +10,13 @@ body {
   line-height: 1.231;
   padding: 0;
 }
+
+html,
+body {
+  height: 100%;
+
+}
+
 body,
 input,
 select,
@@ -291,11 +298,14 @@ body {
 }
 #container {
   background: #fff;
-  width: 840px;
+  width: 100%;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  min-height: 90%;
+  height: auto !important;
+  height: 90%;
 }
 #header {
   position: relative;
@@ -417,7 +427,7 @@ body {
 .front-page-button {
 }
 .main-content {
-  width: 565px;
+  width:100%;
 }
 #landing_page #new_ticket {
   margin-top: 40px;
@@ -989,13 +999,12 @@ img.sign-in-image {
 }
 .span4 {
     display: inline-block;
-    width: 29.5%;
     margin: 0 1%;
     vertical-align: top;
 }
 .span8 {
     display: inline-block;
-    width: 66.0%;
+    width: 75.0%;
     margin: 0 1%;
     vertical-align: top;
 }
