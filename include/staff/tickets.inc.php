@@ -707,7 +707,7 @@ return false;">
 				?>
                 </td> 
                 <td><div style="max-width: <?php
-                    $base = 279;
+                    $base = 650;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
                     // Assume about 8px per digit character
