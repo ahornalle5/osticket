@@ -51,13 +51,11 @@ $queue_columns = array(
             'heading' => __('Created'),
             'sort_col' => 'created',
             ),
-        /*
         'time' => array(// Anpassung timesheet
             'width' => '1%',
             'heading' => __('Time'),
             'sort_col' => 'thread__timeTotal',
             ),
-        // */
         'subject' => array(
             'width' => '47%',
             'heading' => __('Subject'),
@@ -695,6 +693,7 @@ return false;">
 				}
                 ?>
                 <!-- Anpassung Faelligkeitsampel Ende -->
+                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td align="center">
                 <?php 
 				require_once(INCLUDE_DIR.'class.timesheet.php'); // Timesheet include
