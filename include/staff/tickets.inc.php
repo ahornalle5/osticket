@@ -760,7 +760,7 @@ return false;">
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="10">
+        <td colspan="<?php echo 1+count($queue_columns); ?>">
             <?php if($total && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
