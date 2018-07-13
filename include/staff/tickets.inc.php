@@ -121,10 +121,14 @@ case 'active':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My active tickets');
+    $agentteams = array_filter($thisstaff->getTeams()); //assegno alla variabile $agentteams l'array di team a cui appartengo
+        if (empty($agentteams)){      //se non si appartiene a nessun team
+            $agentteams= array('100','101');   //assegnamo dei team fittizzi (100 e 101) per non far mandare in errore la query
+        }
     $tickets->filter(Q::all(array(
         Q::any(array(
             'staff_id'=>$thisstaff->getId(),
-            Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
+            Q::all(array('staff_id' => 0, 'team_id__in' => $agentteams)),
         )),
         Q::not(array('status_id__in' => array('0' => 7)))
     )));
